@@ -2,13 +2,14 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../../firebase";
 import styled from 'styled-components';
+import video from '../media/worldSpinning.mp4';
 
 const SignInContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 35vh;
+  height: 75vh;
 `;
 
 const SignInForm = styled.form`
@@ -23,6 +24,7 @@ const SignInForm = styled.form`
 
 const Title = styled.h1`
   margin-bottom: 20px;
+  color: white;
 `;
 
 const Input = styled.input`
@@ -40,6 +42,23 @@ const SubmitButton = styled.button`
   border: none;
   border-radius: 4px;
   cursor: pointer;
+`;
+
+const Container = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+`;
+
+const VideoBackground = styled.video`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
 `;
 
 
@@ -60,6 +79,8 @@ const SignIn = () => {
   };
 
   return (
+    <Container>
+    <VideoBackground src={video} autoPlay loop muted />
     <SignInContainer>
     <SignInForm onSubmit={signIn}>
       <Title>Log In to your Account</Title>
@@ -78,6 +99,7 @@ const SignIn = () => {
       <SubmitButton type="submit">Log In</SubmitButton>
     </SignInForm>
   </SignInContainer>
+  </Container>
   );
 };
 

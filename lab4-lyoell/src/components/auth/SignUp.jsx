@@ -2,13 +2,14 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../../firebase";
 import styled from 'styled-components';
+import video from '../media/worldSpinning.mp4';
 
 const SignUpContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 35vh;
+  height: 75vh;
 `;
 
 const SignUpForm = styled.form`
@@ -23,6 +24,7 @@ const SignUpForm = styled.form`
 
 const Title = styled.h1`
   margin-bottom: 20px;
+  color: White;
 `;
 
 const Input = styled.input`
@@ -42,6 +44,23 @@ const SubmitButton = styled.button`
   cursor: pointer;
 `;
 
+const Container = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+`;
+
+const VideoBackground = styled.video`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+`;
+
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -59,6 +78,8 @@ const SignUp = () => {
   };
 
   return (
+    <Container>
+    <VideoBackground src={video} autoPlay loop muted />
     <SignUpContainer>
       <SignUpForm onSubmit={signUp}>
         <Title>Create Account</Title>
@@ -77,6 +98,7 @@ const SignUp = () => {
         <SubmitButton type="submit">Sign Up</SubmitButton>
       </SignUpForm>
     </SignUpContainer>
+    </Container>
   );
 };
 
