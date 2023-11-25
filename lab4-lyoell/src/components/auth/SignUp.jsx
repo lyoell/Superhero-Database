@@ -2,7 +2,10 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../../firebase";
 import styled from 'styled-components';
-import video from '../media/worldSpinning.mp4';
+import { Link } from 'react-router-dom';
+import VideoBackgroundWorld from "../media/VideoBackgroundWorld";
+import { useHistory } from "react-router-dom";
+
 
 const SignUpContainer = styled.div`
   display: flex;
@@ -57,25 +60,28 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-const VideoBackground = styled.video`
+const BackButton = styled(Link)`
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: -1;
+  top: 20px;
+  left: 20px;
+  text-decoration: none;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
 `;
-
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [nickname, setNickname] = useState("");
+  const history = useHistory();
 
   const signUp = (e) => {
     e.preventDefault();
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
+        history.push("/AuthorizedPage");
         console.log(userCredential);
       })
       .catch((error) => {
@@ -83,10 +89,14 @@ const SignUp = () => {
       });
   };
 
+
   return (
     <Container>
-    <VideoBackground src={video} autoPlay loop muted />
+    <VideoBackgroundWorld/>
     <SignUpContainer>
+    <BackButton to="/DefaultPage">
+          &larr; Back
+        </BackButton>
       <SignUpForm onSubmit={signUp}>
         <Title>Create Account</Title>
         <Input
@@ -94,6 +104,12 @@ const SignUp = () => {
           placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+        />
+        <Input
+          type="nickname"
+          placeholder="Enter your nickname"
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
         />
         <Input
           type="password"

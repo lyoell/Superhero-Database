@@ -2,7 +2,10 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../../firebase";
 import styled from 'styled-components';
-import video from '../media/worldSpinning.mp4';
+import VideoBackgroundWorld from "../media/VideoBackgroundWorld";
+import { Link } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
+
 
 const SignInContainer = styled.div`
   display: flex;
@@ -56,27 +59,28 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-const VideoBackground = styled.video`
+const BackButton = styled(Link)`
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: -1;
+  top: 20px;
+  left: 20px;
+  text-decoration: none;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
 `;
-
-
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const history = useHistory();
 
   const signIn = (e) => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log(userCredential);
+        history.push("/AuthorizedPage");
       })
       .catch((error) => {
         console.log(error);
@@ -85,8 +89,11 @@ const SignIn = () => {
 
   return (
     <Container>
-    <VideoBackground src={video} autoPlay loop muted />
+    <VideoBackgroundWorld/>
     <SignInContainer>
+    <BackButton to="/DefaultPage">
+          &larr; Back
+        </BackButton>
     <SignInForm onSubmit={signIn}>
       <Title>Log In to your Account</Title>
       <Input

@@ -1,23 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import video from '../media/worldSpinning.mp4';
+import VideoBackgroundWorld from "../media/VideoBackgroundWorld";
 
 const Container = styled.div`
   position: relative;
   width: 100%;
   height: 100vh;
   overflow: hidden;
-`;
-
-const VideoBackground = styled.video`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: -1;
 `;
 
 const SignInContainer = styled.div`
@@ -56,11 +46,23 @@ const SubmitButton = styled(Link)`
   }
 `;
 
+const InfoButton = styled(Link)`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  text-decoration: none;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+`;
+
 export default function DefaultPage() {
   return (
     <Container>
-      <VideoBackground src={video} autoPlay loop muted />
+      <VideoBackgroundWorld/>
       <SignInContainer>
+        <InfoButton to='/InfoPage'>Security & Copyright Policy</InfoButton>
         <Title>SuperHero Database</Title>
         <SubmitButton to="/SignupPage">Sign Up</SubmitButton>
         <SubmitButton to="/LoginPage">Log In</SubmitButton>

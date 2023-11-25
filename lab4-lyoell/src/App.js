@@ -5,8 +5,14 @@ import SignUp from './components/auth/SignUp';
 import AuthDetails from './components/auth/AuthDetails';
 import NoAuthPage from './components/pages/NoAuthPage';
 import DefaultPage from './components/pages/DefaultPage';
+import AuthorizedPage from './components/pages/AuthorizedPage';
+import InfoPage from './components/pages/InfoPage';
 
-const App = () => {
+//const mongoose = require('mongoose')
+//const express = require('express')
+//mongoose.connect('mongodb://localhost:27017/databasename')
+
+  const App = () => {
   return (
     <Router>
         <Route path = "/DefaultPage">
@@ -21,8 +27,15 @@ const App = () => {
         <Route path="/SignupPage">
         <SignUp />
         </Route>
+        <Route path='/AuthorizedPage'>
+          <AuthorizedPage/>
+        </Route>
+        <Route path='/InfoPage'>
+          <InfoPage/>
+        </Route>
     </Router>
   );
 };
  
 export default App;
+
