@@ -33,6 +33,7 @@ const SignInContainer = styled.div`
 const Title = styled.h1`
   margin-bottom: 20px;
   color: white;
+  font-family: 'Garamond, serif';
 `;
 
 const SubmitButton = styled(Link)`
@@ -47,6 +48,8 @@ const SubmitButton = styled(Link)`
   cursor: pointer;
   text-align: center;
   margin-bottom: 10px;
+  font-family: 'Garamond, serif';
+
 
   &:hover {
     background-color: #45a049;

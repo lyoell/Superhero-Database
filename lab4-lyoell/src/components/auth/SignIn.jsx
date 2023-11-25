@@ -25,6 +25,7 @@ const SignInForm = styled.form`
 const Title = styled.h1`
   margin-bottom: 20px;
   color: white;
+  font-family: 'Garamond, serif';
 `;
 
 const Input = styled.input`
@@ -42,6 +43,10 @@ const SubmitButton = styled.button`
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-family: 'Garamond, serif';
+  &:hover {
+    background-color: #45a049;
+  }
 `;
 
 const Container = styled.div`
