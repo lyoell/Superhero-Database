@@ -2,6 +2,8 @@ import React from 'react'
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import Search from '../main components/search.jsx'
+import VideoBackgroundSkyline from '../media/VideoBackGroundSkyline';
+
 
 const SubmitButton = styled(Link)`
   display: inline-block;
@@ -34,19 +36,41 @@ const BackButton = styled(Link)`
   cursor: pointer;
 `;
 
+const Paragraph = styled.p`
+font-family: 'Garamond, serif';
+color : white;
+text-align: center
+`;
+
+const Header = styled.h2`
+font-family: 'Garamond, serif';
+color: white;
+text-align: center;
+`;
+
+const Container = styled.div`
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+`;
+
 export default function NoAuthPage() {
   return (
-    <div>
+    <Container>
+      <VideoBackgroundSkyline/>
           <BackButton to="/DefaultPage">
           &larr; Back
         </BackButton>
-    <h2>Beta Version</h2>
-    <p>This is a database containing superheroes! My name is Liam, and I'm a fourth year student 
+    <Header>Beta Version</Header>
+    <Paragraph>This is a database containing superheroes! My name is Liam, and I'm a fourth year student 
       pursuing a dual degree in SWE @ Western and Business @ Ivey. This Web-App
        offers the ability to search for any Superhero,
-        and create lists of superheroes. Stay for a while!</p>
+        and create lists of superheroes. Stay for a while!</Paragraph>
         <SubmitButton to="/SignupPage">Sign Up for Account for Full Functionality</SubmitButton>
         <Search/>
-    </div>
+    </Container>
   )
 }

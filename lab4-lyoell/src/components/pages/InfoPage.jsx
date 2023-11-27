@@ -17,7 +17,7 @@ background-color: white;
 
 const PrivacyContainer = styled.div`
   width: 80%;
-  margin: 50px auto 0; /* Adjust margin-top and overall margin as needed */
+  margin: 50px auto 0;
 `;
 
 const PrivacyParagraph = styled.p`
