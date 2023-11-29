@@ -5,6 +5,9 @@ const port = 8080;
 const fs = require('fs');
 const superhero_info = JSON.parse(fs.readFileSync("superhero_info.json"));
 const superhero_powers = JSON.parse(fs.readFileSync("superhero_powers.json"));
+const policy = JSON.parse(fs.readFileSync("policy.json"));
+const complaints = JSON.parse(fs.readFileSync("complaints.json"));
+const admin = JSON.parse(fs.readFileSync("admins.json"));
 app.use(cors());
 
 
@@ -17,7 +20,39 @@ app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 });
 
-//Getting the pattern.
+//Getting the policy.
+app.get('/policy', (req,res) =>{
+    res.json(policy);
+});
+
+// Rewriting the privacy policies.
+app.post('/policyrewrite', (req,res) =>{
+    const privacyUpdate = req.body.privacy;
+    const aupUpdate = req.body.aup;
+    const dmcaUpdate = req.body.dcma;
+    console.log(privacyUpdate);
+    console.log(aupUpdate);
+    console.log(dmcaUpdate);
+
+    if(privacyUpdate){
+        policy.privacy = privacyUpdate;
+    }
+    if(aupUpdate){
+        policy.aup = aupUpdate;
+    }
+    if(dmcaUpdate){
+        policy.dcma = dmcaUpdate;
+    }
+         fs.writeFile("policy.json", JSON.stringify(policy), 'utf8', (err) => {
+            if (err) {
+                res.status(500).send("Error writing data.");
+            } else {
+                res.status(201).send("Success writing the data");
+            }
+        });
+});
+
+//Getting the pattern for the search functionality.
 app.post('/superheroinfo', (req, res) => {
     const name = req.body['name'];
     const race = req.body['race'];
@@ -73,6 +108,93 @@ app.post('/superheroinfo', (req, res) => {
     }
 
 });
+
+app.get('/dcmacomplaintall', (req,res) =>
+{
+    res.json(complaints);
+});
+
+//Adding to the complaints
+app.post('/dcmacomplaint', (req,res) =>{
+    const requestID = req.body['id'];
+    const dateRequestReceived = req.body['date'];
+    const dateNoticeSent = '';
+    const dateDisputeReceived = '';
+    const notes = req.body['note'];
+    const status = 'Active'
+
+    let complaint=
+    {
+    "requestID": requestID,
+    "dateRequestReceived": dateRequestReceived,
+    "dateNoticeSent": dateNoticeSent,
+    "dateDisputeReceived": dateDisputeReceived,
+    "notes": notes,
+    "status":status
+    }
+
+    complaints.push(complaint);
+    fs.writeFile("complaints.json", JSON.stringify(complaints), 'utf8', (err) => {
+        if (err) {
+            res.status(500).send("Error writing data.");
+        } else {
+            res.status(201).send("Success writing the data");
+        }
+    });
+});
+
+// Updating via the admin
+app.post('/dcmacomplaintadmin', (req,res) =>{
+    const requestID = req.body['id'];
+    const dateNoticeSent = req.body['notice']
+    const dateDisputeReceived = req.body['dispute'];
+    const status = req.body['status'];
+    console.log(requestID);
+    console.log(dateNoticeSent);
+    console.log(dateDisputeReceived);
+    console.log(status);
+
+    const complaintIndex = complaints.findIndex(complaint => complaint['requestID'] === requestID);
+    complaints[complaintIndex]={
+        ...complaints[complaintIndex],
+        "dateNoticeSent":dateNoticeSent,
+        "dateDisputeReceived":dateDisputeReceived,
+        "status":status,
+    }
+
+    fs.writeFile("complaints.json", JSON.stringify(complaints), 'utf8', (err) => {
+        if (err) {
+            res.status(500).send("Error writing data.");
+        } else {
+            res.status(201).send("Success writing the data");
+        }
+    });
+});
+
+// Getting all eligable admins.
+app.get('/admin', (req,res) =>{
+    res.json(admin);
+});
+
+app.post('/admin/:email', (req,res)=>{
+    let email = req.params.email;
+    let addition =
+    {
+        "email":email
+    }
+admin.push(addition)
+
+fs.writeFile("admins.json", JSON.stringify(admin), 'utf8', (err) => {
+   if (err) {
+       res.status(500).send("Error writing data.");
+   } else {
+       res.status(201).send("Success writing the data");
+   }
+});
+})
+
+//
+
 //Need to change to using mongo here.
 // Part 5 & 6
 // app.post('/list/add', (req, res) => {

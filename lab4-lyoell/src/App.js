@@ -7,10 +7,7 @@ import NoAuthPage from './components/pages/NoAuthPage';
 import DefaultPage from './components/pages/DefaultPage';
 import AuthorizedPage from './components/pages/AuthorizedPage';
 import InfoPage from './components/pages/InfoPage';
-
-//const mongoose = require('mongoose')
-//const express = require('express')
-//mongoose.connect('mongodb://localhost:27017/databasename')
+import Admin from './components/pages/Admin';
 
   const App = () => {
   return (
@@ -32,6 +29,9 @@ import InfoPage from './components/pages/InfoPage';
         </Route>
         <Route path='/InfoPage'>
           <InfoPage/>
+        </Route>
+        <Route path='/AdminPage'>
+          <Admin/>
         </Route>
     </Router>
   );

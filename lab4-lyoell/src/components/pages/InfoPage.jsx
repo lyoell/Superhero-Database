@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import VideoBackgroundHacker from "../media/VideoBackGroundHacker";
 
 const BackButton = styled(Link)`
-position: absolute;
-top: 20px;
-left: 20px;
-text-decoration: none;
-color: black;
-font-size: 12px;
-font-weight: bold;
-cursor: pointer;
-background-color: white;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  text-decoration: none;
+  color: black;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: white;
 `;
 
 const PrivacyContainer = styled.div`
@@ -26,29 +26,106 @@ const PrivacyParagraph = styled.p`
   margin-bottom: 20px;
   background-color: black;
   padding: 70px;
+`;
 
+const ComplaintForm = styled.form`
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+  padding: 8px;
+  box-sizing: border-box;
+`;
+
+const SubmitButton = styled.button`
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 `;
 
 export default function InfoPage() {
+  const [data, setData] = useState({});
+  const [complaint, setComplaint] = useState('');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch('http://localhost:8080/policy');
+      const jsonData = await response.json();
+      setData(jsonData);
+    };
+
+    fetchData();
+  }, []);
+
+  const handleComplaintChange = (e) => {
+    setComplaint(e.target.value);
+  };
+
+  
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const allPrevious = await fetch('http://localhost:8080/dcmacomplaintall');
+      let numberComplaints = await allPrevious.json();
+  
+      let newValues = {
+        "id": numberComplaints.length,
+        "date": new Date(),
+        "note": complaint
+      };
+  
+      const response = await fetch('http://localhost:8080/dcmacomplaint', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newValues),
+      });
+  
+      // Add logic to handle the response if needed
+  
+    } catch (error) {
+      console.error('Error submitting complaint:', error);
+    }
+  };
+  
+
   return (
     <div>
-      <VideoBackgroundHacker/>
+      <VideoBackgroundHacker />
       <PrivacyContainer>
-      <BackButton to='/DefaultPage'>    
-        &larr; Back
-      </BackButton>
+        <BackButton to='/DefaultPage'>
+          &larr; Back
+        </BackButton>
         <PrivacyParagraph>
-          <strong>Security:</strong> Google's Firebase is used to protect the data in our superhero database. Your information is encrypted and stored securely.
+          <strong>Security & Privacy:</strong> {data.privacy}
         </PrivacyParagraph>
         <PrivacyParagraph>
-          <strong>Privacy Policy:</strong> The privacy policy outlines how this app can collect, use, and protect your personal information.
+          <strong>Acceptable Use Policy (AUP):</strong> {data.aup}
         </PrivacyParagraph>
         <PrivacyParagraph>
-          <strong>Acceptable Use Policy (AUP):</strong> Users are expected to use our superhero database responsibly and in compliance with all applicable laws and regulations. The AUP outlines acceptable behavior and content on our platform. Violation of the AUP may result in account suspension or termination.
+          <strong>DCMA Notice and Takedown Policy:</strong> {data.dcma}
         </PrivacyParagraph>
-        <PrivacyParagraph>
-          <strong>DCMA Notice and Takedown Policy:</strong> In compliance with the Digital Millennium Copyright Act (DMCA), there is an established a process for handling copyright infringement notices and takedown requests. If you believe any content on our platform violates copyright, please follow any DCMA notice and takedown procedure.
-        </PrivacyParagraph>
+        <ComplaintForm onSubmit={handleSubmit}>
+          <TextArea
+            placeholder="Type your complaint here..."
+            value={complaint}
+            onChange={handleComplaintChange}
+          />
+          <SubmitButton type="submit">Submit Complaint</SubmitButton>
+        </ComplaintForm>
       </PrivacyContainer>
     </div>
   );

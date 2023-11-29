@@ -68,7 +68,8 @@ export default function NoAuthPage() {
     <Paragraph>This is a database containing superheroes! My name is Liam, and I'm a fourth year student 
       pursuing a dual degree in SWE @ Western and Business @ Ivey. This Web-App
        offers the ability to search for any Superhero,
-        and create lists of superheroes. Stay for a while!</Paragraph>
+        and create lists of superheroes. To create public and priavate lists,
+         rate lists and save changes, sign up for an account! Stay for a while, and enjoy the website!</Paragraph>
         <SubmitButton to="/SignupPage">Sign Up for Account for Full Functionality</SubmitButton>
         <Search/>
     </Container>
