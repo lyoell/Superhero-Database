@@ -73,34 +73,38 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const history = useHistory();
+  const UseHistory = useHistory();
 
-  const signUp = (e) => {
+  const signUp = async (e) => {
     e.preventDefault();
-
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        let user = userCredential.user;
-
-        // Update the user profile with the provided username
-        updateProfile(user, {
-          displayName: username,
-        })
-        .then(() => {
-          // Send email verification
-          sendEmailVerification(user);
-          history.push("/AuthorizedPage");
-          console.log(userCredential);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-      })
-      .catch((error) => {
-        console.log(error);
+  
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+  
+      // Update the user profile with the provided username
+      await updateProfile(user, {
+        displayName: username,
       });
+      
+      // Send email verification
+      await sendEmailVerification(user);
+      alert('Email Verification was sent. Please respond to complete signup')
+  
+      // Check if the email is verified
+      if (user.emailVerified) {
+        // Redirect only after email verification is complete
+        UseHistory.push("/AuthorizedPage");
+        console.log('User has been redirected to /AuthorizedPage');
+      } else {
+        // Email not verified, you can notify the user or handle it as needed
+        console.log('Email verification is pending. User will not be redirected.');
+      }
+    } catch (error) {
+      console.error('Error during sign up:', error);
+    }
   };
-
+  
   return (
     <Container>
       <VideoBackgroundWorld />

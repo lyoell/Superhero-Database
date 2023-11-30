@@ -18,7 +18,6 @@ const BackButton = styled(Link)`
   background-color: white;
 `;
 
-
 const TextInput = styled.input`
 position: relative;
 top: 40px;
@@ -51,7 +50,7 @@ const InputStorage = () => {
         "dcma": DCMA
     }
     try {  
-        const response = await fetch('http://localhost:8080/policyrewrite', {
+        let response = await fetch('http://localhost:8080/policyrewrite', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -88,6 +88,9 @@ const SignIn = () => {
       if (error.code === AuthErrorCodes.USER_DISABLED) {
         alert('Your account has been disabled. Please contact support.');
       }
+      if(error.code === AuthErrorCodes.UNVERIFIED_EMAIL){
+        alert('Please verify your email.')
+      }
     }
   };
 

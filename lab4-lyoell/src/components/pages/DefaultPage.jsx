@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import VideoBackgroundWorld from "../media/VideoBackgroundWorld";
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const Container = styled.div`
   position: relative;
@@ -40,7 +41,6 @@ const SubmitButton = styled(Link)`
   margin-bottom: 10px;
   font-family: 'Garamond, serif';
 
-
   &:hover {
     background-color: #45a049;
   }
@@ -57,7 +57,16 @@ const InfoButton = styled(Link)`
   cursor: pointer;
 `;
 
-export default function DefaultPage() {
+const DefaultPage = () => {
+  const history = useHistory();
+
+  const auth = getAuth();
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      history.push('/AuthorizedPage');
+    }
+  });
+
   return (
     <Container>
       <VideoBackgroundWorld/>
@@ -71,3 +80,5 @@ export default function DefaultPage() {
     </Container>
   );
 }
+
+export default DefaultPage;
