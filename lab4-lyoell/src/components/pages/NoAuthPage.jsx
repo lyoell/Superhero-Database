@@ -57,6 +57,17 @@ const Container = styled.div`
   height: 80vh;
 `;
 
+const InfoButton = styled(Link)`
+  position: absolute;
+  top: 50px;
+  left: 20px;
+  text-decoration: none;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+`;
+
 export default function NoAuthPage() {
   return (
     <Container>
@@ -64,6 +75,7 @@ export default function NoAuthPage() {
           <BackButton to="/DefaultPage">
           &larr; Back
         </BackButton>
+        <InfoButton to='/InfoPage'>Security & Copyright Policy</InfoButton>
     <Header>Beta Version</Header>
     <Paragraph>This is a database containing superheroes! My name is Liam, and I'm a fourth year student 
       pursuing a dual degree in SWE @ Western and Business @ Ivey. This Web-App

@@ -1,11 +1,10 @@
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../../firebase";
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import VideoBackgroundWorld from "../media/VideoBackgroundWorld";
 import { useHistory } from "react-router-dom";
-
 
 const SignUpContainer = styled.div`
   display: flex;
@@ -27,7 +26,7 @@ const SignUpForm = styled.form`
 
 const Title = styled.h1`
   margin-bottom: 20px;
-  color: White;
+  color: white;
   font-family: 'Garamond, serif';
 `;
 
@@ -50,7 +49,6 @@ const SubmitButton = styled.button`
   &:hover {
     background-color: #45a049;
   }
-
 `;
 
 const Container = styled.div`
@@ -74,54 +72,65 @@ const BackButton = styled(Link)`
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [nickname, setNickname] = useState("");
+  const [username, setUsername] = useState("");
   const history = useHistory();
 
   const signUp = (e) => {
     e.preventDefault();
+
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         let user = userCredential.user;
-        sendEmailVerification(user);
-        history.push("/AuthorizedPage");
-        console.log(userCredential);
+
+        // Update the user profile with the provided username
+        updateProfile(user, {
+          displayName: username,
+        })
+        .then(() => {
+          // Send email verification
+          sendEmailVerification(user);
+          history.push("/AuthorizedPage");
+          console.log(userCredential);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
-
   return (
     <Container>
-    <VideoBackgroundWorld/>
-    <SignUpContainer>
-    <BackButton to="/DefaultPage">
+      <VideoBackgroundWorld />
+      <SignUpContainer>
+        <BackButton to="/DefaultPage">
           &larr; Back
         </BackButton>
-      <SignUpForm onSubmit={signUp}>
-        <Title>Create Account</Title>
-        <Input
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <Input
-          type="nickname"
-          placeholder="Enter your nickname"
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-        />
-        <Input
-          type="password"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <SubmitButton type="submit">Sign Up</SubmitButton>
-      </SignUpForm>
-    </SignUpContainer>
+        <SignUpForm onSubmit={signUp}>
+          <Title>Create Account</Title>
+          <Input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Input
+            type="username"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <Input
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <SubmitButton type="submit">Sign Up</SubmitButton>
+        </SignUpForm>
+      </SignUpContainer>
     </Container>
   );
 };

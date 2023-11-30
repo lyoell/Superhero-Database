@@ -13,11 +13,24 @@ const Container = styled.div`
   justify-content: center;
   height: 70vh;
 `;
+
+const InfoButton = styled(Link)`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  text-decoration: none;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1;
+`;
 export default function AuthorizedPage() {
   return (
     <div>
       <VideoBackgroundWorld/>
       <AuthDetails/>
+      <InfoButton to='/InfoPage'>Security & Copyright Policy</InfoButton>
       <Container>
         <Search/>
       </Container>

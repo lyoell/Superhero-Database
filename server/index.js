@@ -3,14 +3,21 @@ const app = express();
 const cors = require('cors');
 const port = 8080;
 const fs = require('fs');
-const superhero_info = JSON.parse(fs.readFileSync("superhero_info.json"));
-const superhero_powers = JSON.parse(fs.readFileSync("superhero_powers.json"));
-const policy = JSON.parse(fs.readFileSync("policy.json"));
-const complaints = JSON.parse(fs.readFileSync("complaints.json"));
-const admin = JSON.parse(fs.readFileSync("admins.json"));
+const admin = require('firebase-admin');
+const serviceAccount = require('./json/lab4-17758-firebase-adminsdk-63vkn-b86563f5cc.json');
+
+const superhero_info = JSON.parse(fs.readFileSync("json/superhero_info.json"));
+const superhero_powers = JSON.parse(fs.readFileSync("json/superhero_powers.json"));
+const policy = JSON.parse(fs.readFileSync("json/policy.json"));
+const complaints = JSON.parse(fs.readFileSync("json/complaints.json"));
+const adminAccounts = JSON.parse(fs.readFileSync("json/admins.json"));
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'https://lab4-17758-default-rtdb.firebaseio.com/',
+  });
+
 app.use(cors());
-
-
 app.use(express.json());
 app.use((req, res, next) => {
     console.log(`${req.method} request for ${req.url}`);
@@ -173,7 +180,7 @@ app.post('/dcmacomplaintadmin', (req,res) =>{
 
 // Getting all eligable admins.
 app.get('/admin', (req,res) =>{
-    res.json(admin);
+    res.json(adminAccounts);
 });
 
 app.post('/admin/:email', (req,res)=>{
@@ -182,9 +189,9 @@ app.post('/admin/:email', (req,res)=>{
     {
         "email":email
     }
-admin.push(addition)
+    adminAccounts.push(addition)
 
-fs.writeFile("admins.json", JSON.stringify(admin), 'utf8', (err) => {
+fs.writeFile("admins.json", JSON.stringify(adminAccounts), 'utf8', (err) => {
    if (err) {
        res.status(500).send("Error writing data.");
    } else {
@@ -193,111 +200,16 @@ fs.writeFile("admins.json", JSON.stringify(admin), 'utf8', (err) => {
 });
 })
 
-//
-
-//Need to change to using mongo here.
-// Part 5 & 6
-// app.post('/list/add', (req, res) => {
-//     const listName = req.body.listName;
-//     const superheroIDList = req.body.superheroIDs;
-//     const newList = superheroList.findIndex(function (slist) {
-//         return slist.n === listName;
-//     });
-
-//     // If the list already exists, throw an error and replace the items with the new items.
-//     if (newList !== -1) {
-//         const duplicateItem = superheroList.findIndex(function (slist) {
-//             return slist.n === listName;
-//         });
-//         superheroList[duplicateItem] = {
-//             n: listName,
-//             s: superheroIDList
-//         }
-//         // Write the updated data to the JSON file
-//     fs.writeFile("list.json", JSON.stringify(superheroList), 'utf8', (err) => {
-//         if (err) {
-//             res.status(500).send("Error writing data.");
-//         } else {
-//             res.status(201).send("This list name already exists. Changing list to include new objects");
-//         }
-//     });
-
-//     } else {
-//         const listObject = {
-//             n: listName,
-//             s: superheroIDList
-//         };
-//         superheroList.push(listObject);
-//         // Write the updated data to the JSON file
-//     fs.writeFile("list.json", JSON.stringify(superheroList), 'utf8', (err) => {
-//         if (err) {
-//             res.status(500).send("Error writing data.");
-//         } else {
-//             res.status(201).json(superheroList);
-//         }
-//     });
-
-//     }
-    
-// });
-
-// // Part 7
-// app.get('/list/return/:name',(req,res) => {
-//     const listName = req.params.name;
-//     const list = superheroList.find(p => p.n === listName)
-//     if(list){
-//         res.send(list);
-//     }
-//     else{
-//         res.status(404).send('Item not found');
-//     }
-// })
-// // Part 8
-// app.delete('/list/delete/:name', (req,res)=> {
-//     const name = req.params.name;
-//      const indexToDelete = superheroList.findIndex(p => p.n === name);
-//      if (indexToDelete !== -1) {
-//         superheroList.splice(indexToDelete, 1);
-//          fs.writeFile("list.json", JSON.stringify(superheroList), 'utf8', (err) => {
-//             if (err) {
-//                 res.status(500).send("Error writing data.");
-//             } else {
-//                 res.status(201).send("Success deleting the data");
-//             }
-//         });
-//      }
-//      else{
-//         res.status(404).send('Item not found')
-//      }
-// });
-// // Part 9
-// //Get names, info, powers of all superheroes in a list.
-// app.get('/list/returnAllInfo/:name',(req,res) => {
-//     //Get name of list
-//     const listName = req.params.name;
-//     let finalList = []
-//     //Get list in const list
-//     const list = superheroList.find(p => p.n === listName)
-//     if(list){
-//         const IDs= list.s;
-//         //Individually search through each index of the list to find the superhero + name.
-//         for(const number in IDs){
-//             const superhero = superhero_info.find(p => p.id === parseInt(IDs[number]))
-//             const powers = superhero_powers.find(hero => hero.hero_names === superhero["name"])
-//             let tempList = {
-//                 "info": superhero,
-//                 "powers": powers
-//             };
-//             finalList.push(tempList);
-//         }
-//     }
-//     if(finalList.length!=0){
-//         res.send(finalList);
-//     }
-//     else{
-//         res.status(404).send('Item not found');
-//     }
-// })
-
+app.post('/deactivateUser', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await admin.auth().getUserByEmail(email);
+        await admin.auth().updateUser(user.uid, { disabled: true });
+        res.send(`User with email ${email} has been deactivated`);
+    } catch (error) {
+        console.error('Error deactivating user:', error);
+        res.status(500).send('Internal server error');
+    }
+});
 
 

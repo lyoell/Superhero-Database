@@ -93,8 +93,8 @@ export default function InfoPage() {
         },
         body: JSON.stringify(newValues),
       });
-  
-      // Add logic to handle the response if needed
+      setComplaint("");
+
   
     } catch (error) {
       console.error('Error submitting complaint:', error);

@@ -82,7 +82,7 @@ const AuthDetails = () => {
       {authUser ? (
         <>
           <p>{`Signed In as ${authUser.email}`}</p>
-          <p>{`Welcome, ${authUser.nickname}`}</p>
+          <p>{`Welcome, ${authUser.displayName}`}</p>
           <button onClick={userSignOut}>Sign Out</button>
           <AdminButton to="/AdminPage">
             Go to Admin Page
