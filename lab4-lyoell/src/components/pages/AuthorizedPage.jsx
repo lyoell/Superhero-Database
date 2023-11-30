@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import AuthDetails from '../auth/AuthDetails';
 import Search from '../main components/search.jsx'
 import VideoBackgroundWorld from '../media/VideoBackgroundNYC.jsx';
+import CreateList from '../main components/ListCreation.jsx';
 
 const Container = styled.div`
   position: relative;
@@ -11,7 +12,8 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 70vh;
+  height: 90vh;
+  width:90%;
 `;
 
 const InfoButton = styled(Link)`
@@ -33,6 +35,7 @@ export default function AuthorizedPage() {
       <InfoButton to='/InfoPage'>Security & Copyright Policy</InfoButton>
       <Container>
         <Search/>
+        <CreateList/>
       </Container>
     </div>
   )

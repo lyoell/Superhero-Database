@@ -7,6 +7,7 @@ const admin = require('firebase-admin');
 const serviceAccount = require('./json/lab4-17758-firebase-adminsdk-63vkn-b86563f5cc.json');
 
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 const superhero_info = JSON.parse(fs.readFileSync("json/superhero_info.json"));
 const superhero_powers = JSON.parse(fs.readFileSync("json/superhero_powers.json"));
 const policy = JSON.parse(fs.readFileSync("json/policy.json"));
@@ -29,6 +30,73 @@ useUnifiedTopology: true
 }).then(()=>{
     console.log("MongoDB Connected")
 })
+
+// Mongo DB Model
+const databaseSchema = new mongoose.Schema({
+    'username': {
+      type: String,
+      required: true,
+    },
+    'name':{
+        type:String,
+        required:true
+    },
+    'notes': {
+      type: String,
+      required: false,
+    },
+    'superheroes': {
+      type: Array,
+      required: true,
+    },
+    'listPrivacy': {
+      type: Boolean,
+      required: true,
+    },
+    'reviews': {
+      type: Array,
+      required: false,
+    },
+  });
+  
+  // Define the model
+  const List = mongoose.model('lists', databaseSchema);
+    
+  // POST endpoint for adding a list
+  app.post('/listAddition', async (req, res) => {
+    try {
+
+    let isPrivate = false;
+    if(req.body['visibility'] == 'Private'){
+        isPrivate = true;
+    }
+    let heroesArray = ""
+    heroesArray = req.body['heroes']
+    String.prototype.trim(heroesArray);
+    //Getting the superhero names in an array
+    const superheroNamesArray = String.prototype.split(',', heroesArray)
+    
+    let newList = new List({
+        'username': req.body['username'],
+            'name':req.body['name'],
+          'notes': req.body['description'],
+          'superheroes': superheroNamesArray,
+          'listPrivacy': isPrivate,
+          'reviews': [],
+    });
+  
+      // Save the new list to the database
+      const savedList = await newList.save();
+        console.log('Added List!')
+      res.status(201).json(savedList);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+  
+
+
 
 app.use((req, res, next) => {
     console.log(`${req.method} request for ${req.url}`);

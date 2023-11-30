@@ -6,9 +6,9 @@ import { useHistory } from "react-router-dom";
 import { Link } from 'react-router-dom';
 
 const AuthDetails = () => {
-  const [authUser, setAuthUser] = useState(null);
   const history = useHistory();
   const [admins, setAdmins] = useState(null);
+  const [authUser, setAuthUser] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -82,7 +82,6 @@ const AuthDetails = () => {
       {authUser ? (
         <>
           <p>{`Signed In as ${authUser.email}`}</p>
-          <p>{`Welcome, ${authUser.displayName}`}</p>
           <button onClick={userSignOut}>Sign Out</button>
           <AdminButton to="/AdminPage">
             Go to Admin Page
