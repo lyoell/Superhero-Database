@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import ComplaintList from '../main components/Complaints';
 import AddAdmin from '../main components/AddAdmin';
 import DisableAccountForm from '../main components/DisableAccount';
+import EnableAccountForm from '../main components/EnableAccount';
 
 const BackButton = styled(Link)`
   position: absolute;
@@ -102,6 +103,9 @@ const InputStorage = () => {
         </Container>
         <Container>
           <DisableAccountForm/>
+        </Container>
+        <Container>
+          <EnableAccountForm/>
         </Container>
     </div>
   );

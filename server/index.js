@@ -212,4 +212,22 @@ app.post('/deactivateUser', async (req, res) => {
     }
 });
 
+app.post('/reactivateUser', async (req, res) => {
+    const { email } = req.body;
+  
+    try {
+      const user = await admin.auth().getUserByEmail(email);
+  
+      if (user.disabled) {
+        // If the user is currently disabled, update the user to enable the account
+        await admin.auth().updateUser(user.uid, { disabled: false });
+        res.send(`User with email ${email} has been re-enabled`);
+      } else {
+        res.status(400).send(`User with email ${email} is not disabled`);
+      }
+    } catch (error) {
+      console.error('Error re-enabling user:', error);
+      res.status(500).send('Internal server error');
+    }
+  });
 
