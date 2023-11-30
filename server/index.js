@@ -6,6 +6,7 @@ const fs = require('fs');
 const admin = require('firebase-admin');
 const serviceAccount = require('./json/lab4-17758-firebase-adminsdk-63vkn-b86563f5cc.json');
 
+const mongoose = require('mongoose');
 const superhero_info = JSON.parse(fs.readFileSync("json/superhero_info.json"));
 const superhero_powers = JSON.parse(fs.readFileSync("json/superhero_powers.json"));
 const policy = JSON.parse(fs.readFileSync("json/policy.json"));
@@ -19,6 +20,16 @@ admin.initializeApp({
 
 app.use(cors());
 app.use(express.json());
+
+//Connecting to MongoDB database
+mongoose.connect('mongodb+srv://liamjohnxuyoell:DEiUUTiocuR8h5OK@lab4lyoell.qnrftmh.mongodb.net/?retryWrites=true&w=majority',{
+dbName: 'ListDatabase',
+useNewUrlParser:true,
+useUnifiedTopology: true
+}).then(()=>{
+    console.log("MongoDB Connected")
+})
+
 app.use((req, res, next) => {
     console.log(`${req.method} request for ${req.url}`);
     next();
@@ -65,10 +76,10 @@ app.post('/superheroinfo', (req, res) => {
     const race = req.body['race'];
     const power = req.body['power'];
     const publisher = req.body['publisher'];
-    console.log(name)
-    console.log(race)
-    console.log(power)
-    console.log(publisher)
+    console.log(name);
+    console.log(race);
+    console.log(power);
+    console.log(publisher);
 
     let filteredSuperheroes = superhero_info;
     String.prototype.trim(name);
@@ -87,33 +98,32 @@ app.post('/superheroinfo', (req, res) => {
     if (publisher) {
         filteredSuperheroes = filteredSuperheroes.filter(hero => hero['Publisher'].toLowerCase() === publisher.toLowerCase());
     }
-    let results =[]
+
+    let results = filteredSuperheroes.map(hero => {
+        const matchingPower = superhero_powers.find(e => e.hero_names === hero.name);
+
+        if (matchingPower) {
+            return { ...hero, powers: matchingPower };
+        } else {
+            return hero;
+        }
+    });
+
     if (power) {
         const matchingPowerNames = superhero_powers
             .filter(hero => hero[power] === "True")
             .map(hero => hero.hero_names);
 
-        filteredSuperheroes = filteredSuperheroes.filter(hero =>
+        results = results.filter(hero =>
             matchingPowerNames.includes(hero.name)
         );
     }
 
-    // const heroNames = filteredSuperheroes.map(hero => hero.name);
-
-    // const matchingPowers = superhero_powers.filter(powerHero => heroNames.includes(powerHero.hero_names));
-
-    // results = filteredSuperheroes.map(hero => {
-    //     const matchingPower = matchingPowers.find(e => e.hero_names === hero.name);
-    //     return { ...hero, powers: matchingPower };
-    // });
-
-    if (filteredSuperheroes.length > 0) {
-        res.json(filteredSuperheroes);
-    } 
-    else {
+    if (results.length > 0) {
+        res.json(results);
+    } else {
         res.status(404).send('No matching superheroes found.');
     }
-
 });
 
 app.get('/dcmacomplaintall', (req,res) =>
@@ -214,15 +224,13 @@ app.post('/deactivateUser', async (req, res) => {
 
 app.post('/reactivateUser', async (req, res) => {
     const { email } = req.body;
-  
     try {
       const user = await admin.auth().getUserByEmail(email);
-  
       if (user.disabled) {
-        // If the user is currently disabled, update the user to enable the account
         await admin.auth().updateUser(user.uid, { disabled: false });
         res.send(`User with email ${email} has been re-enabled`);
-      } else {
+      } 
+      else {
         res.status(400).send(`User with email ${email} is not disabled`);
       }
     } catch (error) {
@@ -230,4 +238,3 @@ app.post('/reactivateUser', async (req, res) => {
       res.status(500).send('Internal server error');
     }
   });
-

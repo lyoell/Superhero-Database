@@ -6,7 +6,7 @@ const ExpandableBoxContainer = styled.div`
   background-color: #36454F;
   padding: 10px;
   margin-bottom: 10px;
-  `;
+`;
 
 const ExpandableBoxHeader = styled.div`
   font-weight: bold;
@@ -14,14 +14,13 @@ const ExpandableBoxHeader = styled.div`
 `;
 
 const ExpandableBoxContent = styled.div`
-  display: none;
   margin-top: 10px;
+  display: none; /* Set the initial display to 'none' */
 `;
 
 const Paragraph = styled.p`
-font-family: 'Garamond'
-`
-
+  font-family: 'Garamond';
+`;
 
 const SuperheroExpandableBox = ({ superhero }) => {
   const toggleExpand = () => {
@@ -29,10 +28,11 @@ const SuperheroExpandableBox = ({ superhero }) => {
     content.style.display = content.style.display === 'none' ? 'block' : 'none';
   };
 
-
   return (
     <ExpandableBoxContainer>
-      <ExpandableBoxHeader onClick={toggleExpand}>Name: {superhero.name}, Publisher: {superhero.Publisher}</ExpandableBoxHeader>
+      <ExpandableBoxHeader onClick={toggleExpand}>
+        Name: {superhero.name}, Publisher: {superhero.Publisher}
+      </ExpandableBoxHeader>
       <ExpandableBoxContent id={`expandable-box-content-${superhero.id}`}>
         <Paragraph>ID: {superhero.id}</Paragraph>
         <Paragraph>Gender: {superhero.Gender}</Paragraph>
@@ -43,8 +43,15 @@ const SuperheroExpandableBox = ({ superhero }) => {
         <Paragraph>Skin Color: {superhero['Skin color']}</Paragraph>
         <Paragraph>Alignment: {superhero.Alignment}</Paragraph>
         <Paragraph>Weight: {superhero.Weight}</Paragraph>
+        
+        {/* Display powers that are true */}
+        <Paragraph>Powers: {Object.entries(superhero.powers || {})
+          .filter(([key, value]) => value === "True")
+          .map(([key]) => key)
+          .join(', ')}</Paragraph>
+
         <a href={`https://duckduckgo.com/${superhero.name}`} target="_blank" rel="noopener noreferrer">
-            Search on DDG
+          Search on DDG
         </a>
       </ExpandableBoxContent>
     </ExpandableBoxContainer>
