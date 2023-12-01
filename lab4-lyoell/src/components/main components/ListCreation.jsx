@@ -91,46 +91,59 @@ const CreateList = () => {
       };
     }, []);
   
-        const createList = async () => {
-            const heroes = heroNames.split(',').map(hero => hero.trim());
-        
-            // Validate the number of heroes (up to 20)
-            if (heroes.length > 20) {
-                alert('Please provide up to 20 hero names.');
-                return;
-            }
-        
-            // Wait for onAuthStateChanged to update authUser
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        
-            // Check if authUser is not null
-            if (!authUser) {
-                alert('User not authenticated. Please log in.');
-                return;
-            }
-        
-            // Create the list object
-            const newList = {
-                username: authUser.email,
-                name: listName,
-                description: listDescription,
-                visibility: listVisibility,
-                heroes: heroes
-            };
-        
-            if (listName && heroNames) {
-                const response = await fetch('http://localhost:8080/listAddition', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(newList),
-                });
-                alert("Added List!");
-            }
-        
-            console.log(newList);
+    const createList = async () => {
+        const heroes = heroNames.split(',').map(hero => hero.trim());
+    
+        // Validate the number of heroes (up to 20)
+        if (heroes.length > 20) {
+            alert('Please provide up to 20 hero names.');
+            return;
+        }
+    
+        // Fetch the list names
+        const response = await fetch(`http://localhost:8080/alllistnames`);
+        const data = await response.json();
+    
+        if (data.includes(listName)) {
+            alert('List name already exists. Please choose a different name.');
+            return;
+        }
+    
+        // Wait for onAuthStateChanged to update authUser
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    
+        // Check if authUser is not null
+        if (!authUser) {
+            alert('User not authenticated. Please log in.');
+            return;
+        }
+    
+        // Create the list object
+        const newList = {
+            username: authUser.email,
+            name: listName,
+            description: listDescription,
+            visibility: listVisibility,
+            heroes: heroes
         };
+    
+        if (listName && heroNames) {
+            // Send a POST request to add the new list
+            const postResponse = await fetch('http://localhost:8080/listAddition', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newList),
+            });
+    
+            // Display a success message
+            alert("Added List!");
+        }
+    
+        console.log(newList);
+    };
+    
         
     return (
         <Container>

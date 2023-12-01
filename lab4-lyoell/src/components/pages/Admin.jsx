@@ -5,6 +5,8 @@ import ComplaintList from '../main components/Complaints';
 import AddAdmin from '../main components/AddAdmin';
 import DisableAccountForm from '../main components/DisableAccount';
 import EnableAccountForm from '../main components/EnableAccount';
+import AllReviews from '../main components/AdminReviews';
+import AdminReviews from '../main components/AdminReviews';
 
 const BackButton = styled(Link)`
   position: absolute;
@@ -105,6 +107,9 @@ const InputStorage = () => {
         </Container>
         <Container>
           <EnableAccountForm/>
+        </Container>
+        <Container>
+          <AdminReviews/>
         </Container>
     </div>
   );

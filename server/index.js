@@ -62,18 +62,31 @@ const databaseSchema = new mongoose.Schema({
   // Define the model
   const List = mongoose.model('lists', databaseSchema);
     
+//Gets all the names of the lists.
+app.get('/alllistnames', async (req, res) => {
+    try {
+        // Find all lists in the database
+        const allLists = await List.find({}, 'name');
+
+        // Extract only the names from the result
+        const listNames = allLists.map(list => list.name);
+
+        // Send the list names in the response
+        res.status(200).json(listNames);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
   // Adding a list to MongoDB
   app.post('/listAddition', async (req, res) => {
     try {
         let isPrivate = req.body['visibility'] === 'Private';
 
-        // Check if req.body['heroes'] is an array
         let heroesArray = Array.isArray(req.body['heroes']) ? req.body['heroes'].join(',') : req.body['heroes'];
 
-        // Trim leading and trailing whitespaces from the heroesArray
         heroesArray = heroesArray.trim();
-
-        // Split the heroesArray into an array of superhero names
         const superheroNamesArray = heroesArray.split(',');
 
         let newList = new List({
@@ -91,6 +104,57 @@ const databaseSchema = new mongoose.Schema({
         res.status(201).json(savedList);
     } catch (error) {
         console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+// Deleting the list item
+app.delete('/deletelist/:name', async (req, res) => {
+    try {
+        const listName = req.params.name;
+
+        // Check if a list with the given name exists
+        const existingList = await List.findOne({ name: listName });
+
+        if (!existingList) {
+            return res.status(404).json({ error: 'List not found' });
+        }
+
+        // Remove the list from the database
+        await List.deleteOne({ name: listName });
+
+        res.json({ message: 'List deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+// Editing a list item.
+app.post('/updateList/:listName', async (req, res) => {
+    try {
+        const listName = req.params.listName;
+        console.log(listName);
+        const existingList = await List.findOne({ name: listName });
+
+        if (!existingList) {
+            return res.status(404).json({ error: 'List not found' });
+        }
+
+        let isPrivate = req.body['visibility'] === 'Private';
+        let heroesArray = Array.isArray(req.body['heroes']) ? req.body['heroes'].join(',') : req.body['heroes'];
+
+        heroesArray = heroesArray.trim();
+        const superheroNamesArray = heroesArray.split(',');
+
+        existingList.notes = req.body.description || existingList.notes;
+        existingList.superheroes = superheroNamesArray || existingList.superheroes;
+        existingList.listPrivacy = isPrivate || existingList.listPrivacy;
+        console.log(req.body.description);
+        console.log(isPrivate)
+        const updatedList = await existingList.save();
+
+        res.status(200).json(updatedList);
+    } catch (error) {
+        console.error('Error updating list:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -123,8 +187,36 @@ app.get('/allpubliclists', async (req, res) => {
     }
 });
 
+app.get('/userlistsHeroes/:email', async (req, res) =>{
+    try {
+    const publicLists = await List.find({ username: req.params.email });
+
+    // Populate superhero information for each list
+    const listsWithSuperheroes = await Promise.all(publicLists.map(async (list) => {
+        const superheroDetails = await Promise.all(list.superheroes.map(async (superheroName) => {
+            const superhero = superhero_info.find(hero => hero.name.toLowerCase() === superheroName.toLowerCase());
+            const matchingPower = superhero_powers.find(e => e.hero_names === superheroName);
+            
+            if (superhero && matchingPower) {
+                return { ...superhero, powers: matchingPower };
+            } else {
+                return superhero;
+            }
+        }));
+
+        return { ...list.toObject(), superheroes: superheroDetails };
+    }));
+
+    res.json(listsWithSuperheroes);
+    } catch (error) {
+    console.error('Error fetching public lists with superhero info:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+}
+
+})
+
 // Example route for fetching user-specific lists
-app.get('/userlists/:email', async (req, res) => {
+app.get('/userlistsEditable/:email', async (req, res) => {
     try {
       const userEmail = req.params.email;
       console.log(userEmail)
@@ -138,6 +230,101 @@ app.get('/userlists/:email', async (req, res) => {
     }
   });
   
+  //Adding a review to a public list.
+  app.post('/addReview/:listId', async (req, res) => {
+    try {
+      const listId = req.params.listId;
+      const rating = req.body.rating;
+      const comment = req.body.comment;
+      const name = req.body.name;
+      let hidden = false;
+  
+      const lists = await List.find();
+    
+      let allReviews = [];
+      lists.forEach((list) => {
+        if (list.reviews && list.reviews.length > 0) {
+          allReviews = allReviews.concat(list.reviews);
+        }
+      });
+      const id = allReviews.length;
+    
+      // Find the list by ID
+      const list = await List.findById(listId);
+  
+      if (!list) {
+        return res.status(404).json({ error: 'List not found' });
+      }
+  
+      list.reviews.push({ id,name, rating, comment, hidden });
+      const updatedList = await list.save();
+      res.status(201).json(updatedList);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+  //Getting all reviews for the admin page.
+  app.get('/allreviews', async (req, res) => {
+    try {
+      const lists = await List.find();
+  
+      let allReviews = [];
+      lists.forEach((list) => {
+        if (list.reviews && list.reviews.length > 0) {
+          const reviewsWithListID = list.reviews.map((review) => ({
+            ...review.toObject(), // Convert Mongoose document to plain JavaScript object
+            listID: list._id.toString(), // Add the listID to each review
+          }));
+          allReviews = allReviews.concat(reviewsWithListID);
+        }
+      });
+  
+      res.json(allReviews);
+    } catch (error) {
+      console.error('Error fetching all reviews:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+    
+  // Hiding a review
+  app.post('/updatereview/:reviewId', async (req, res) => {
+    try {
+      const reviewId = req.params.reviewId;
+  
+      // Find the review by ID
+      const reviewToUpdate = await List.findOne({ 'reviews.id': reviewId });
+  
+      
+      if (!reviewToUpdate) {
+        return res.status(404).json({ error: 'Review not found' });
+      }
+  
+      // Update the hidden status of the review
+      reviewToUpdate.reviews.forEach((review) => {
+        if (review.id.toString() === reviewId) {
+          if(review.hidden == true) {
+            review.hidden = false;
+          }
+          if(review.hidden == false){
+            review.hidden = true;
+          }
+        }
+      });
+  
+      // Save the updated list
+      const updatedList = await reviewToUpdate.save();
+  
+      res.json(updatedList);
+    } catch (error) {
+      console.error('Error updating review:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+  
+
+
 app.use((req, res, next) => {
     console.log(`${req.method} request for ${req.url}`);
     next();
@@ -190,25 +377,21 @@ app.post('/superheroinfo', (req, res) => {
     console.log(publisher);
 
     let filteredSuperheroes = superhero_info;
-    String.prototype.trim(name);
-    String.prototype.trim(race);
-    String.prototype.trim(power);
-    String.prototype.trim(publisher);
 
     if (name) {
-        filteredSuperheroes = filteredSuperheroes.filter(hero => hero['name'].toLowerCase().includes(name.toLowerCase()));
+        filteredSuperheroes = filteredSuperheroes.filter(hero => isMatch(hero['name'], name));
     }
 
     if (race) {
-        filteredSuperheroes = filteredSuperheroes.filter(hero => hero['Race'].toLowerCase().includes(race.toLowerCase()));
+        filteredSuperheroes = filteredSuperheroes.filter(hero => isMatch(hero['Race'], race));
     }
 
     if (publisher) {
-        filteredSuperheroes = filteredSuperheroes.filter(hero => hero['Publisher'].toLowerCase() === publisher.toLowerCase());
+        filteredSuperheroes = filteredSuperheroes.filter(hero => isMatch(hero['Publisher'], publisher));
     }
 
     let results = filteredSuperheroes.map(hero => {
-        const matchingPower = superhero_powers.find(e => e.hero_names === hero.name);
+        const matchingPower = superhero_powers.find(e => isMatch(e.hero_names, hero.name));
 
         if (matchingPower) {
             return { ...hero, powers: matchingPower };
@@ -233,6 +416,24 @@ app.post('/superheroinfo', (req, res) => {
         res.status(404).send('No matching superheroes found.');
     }
 });
+
+//Function to check if almost every character is correct.
+function isMatch(value, searchTerm) {
+    const lowerCaseValue = value.toLowerCase();
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
+    // Check if the lowercased value and search term have the correct order with up to one character difference
+    for (let i = 0; i <= lowerCaseValue.length - lowerCaseSearchTerm.length; i++) {
+        const substring = lowerCaseValue.substr(i, lowerCaseSearchTerm.length);
+        const distance = [...substring].filter((char, index) => char !== lowerCaseSearchTerm[index]).length;
+
+        if (distance <= 1) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 app.get('/dcmacomplaintall', (req,res) =>
 {

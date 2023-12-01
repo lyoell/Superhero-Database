@@ -2,10 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../firebase';
 import styled from 'styled-components';
+import UserListsViewingMode from './UserListsViewingMode';
 
 const ListsContainer = styled.div`
-  max-width: 600px;
+  max-width: 1200px; /* Adjust the width as needed */
   margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Garamond, serif';
+`;
+
+const ListSection = styled.div`
+  width: 48%; /* Adjust the width as needed */
 `;
 
 const ListItem = styled.li`
@@ -33,6 +41,7 @@ const DeleteButton = styled.button`
   border: none;
   padding: 5px 10px;
   cursor: pointer;
+  z-index:3;
 `;
 
 const EditContainer = styled.div`
@@ -58,7 +67,7 @@ const Header = styled.h2`
 `;
 
 const ScrollableContainer = styled.div`
-  width: 500px;
+  width: 100%;
   height: 15vh;
   overflow: auto;
   border: 1px solid #fff;
@@ -68,117 +77,155 @@ const ScrollableContainer = styled.div`
 
 const UserLists = ({ authenticatedUserEmail }) => {
     const [userLists, setUserLists] = useState([]);
-    const [changedListName, setChangedListName] = useState('');
     const [changedListDescription, setChangedListDescription] = useState('');
     const [changedListHeroes, setChangedListHeroes] = useState('');
     const [changedListPrivacy, setChangedListPrivacy] = useState(false); // Default to false (public)
     const [selectedListId, setSelectedListId] = useState(null);
     const [authUser, setAuthUser] = useState(null);
-  
+
     useEffect(() => {
-      const listen = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          setAuthUser(user);
-        } else {
-          setAuthUser(null);
-        }
-      });
-  
-      return () => {
-        listen();
-      };
+        const listen = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setAuthUser(user);
+            } else {
+                setAuthUser(null);
+            }
+        });
+
+        return () => {
+            listen();
+        };
     }, []);
-  
+
     const fetchUserLists = async () => {
-      try {
-        if (authUser) {
-          const response = await fetch(`http://localhost:8080/userlists/${authUser.email}`);
-          const data = await response.json();
-          setUserLists(data);
+        try {
+            if (authUser) {
+                const response = await fetch(`http://localhost:8080/userlistsEditable/${authUser.email}`);
+                const data = await response.json();
+                setUserLists(data);
+            }
+        } catch (error) {
+            console.error('Error fetching user lists:', error);
         }
-      } catch (error) {
-        console.error('Error fetching user lists:', error);
-      }
     };
-  
+
     useEffect(() => {
-      if (authUser) {
-        fetchUserLists();
-  
-        const intervalId = setInterval(() => {
-          fetchUserLists();
-        }, 5000);
-  
-        return () => clearInterval(intervalId);
-      }
+        if (authUser) {
+            fetchUserLists();
+
+            const intervalId = setInterval(() => {
+                fetchUserLists();
+            }, 5000);
+
+            return () => clearInterval(intervalId);
+        }
     }, [authUser, authUser?.email]);
-  
-    const handleListNameChange = (event) => {
-      setChangedListName(event.target.value);
-    };
+
     const handleDescriptionChange = (event) => {
-      setChangedListDescription(event.target.value);
+        setChangedListDescription(event.target.value);
     };
     const handleHeroesChange = (event) => {
-      setChangedListHeroes(event.target.value);
+        setChangedListHeroes(event.target.value);
     };
     const handlePrivacyChange = (event) => {
-      setChangedListPrivacy(event.target.value === 'private');
+        setChangedListPrivacy(event.target.value === 'private');
     };
-  
-    const handleEditList = (listId) => {
 
-    };
-  
-    const handleDeleteList = (listId) => {
+    const handleEditList = (listName) => {
+        try {
+            const response = fetch(`http://localhost:8080/updateList/${listName}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    description: changedListDescription,
+                    heroes: changedListHeroes.split(',').map(hero => hero.trim()),
+                    visibility: changedListPrivacy,
+                }),
+            });
 
+            if (response.ok) {
+                console.log('List updated successfully');
+                // Update the user lists after the update
+                fetchUserLists();
+            } else {
+                console.error('Failed to update list:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error updating list:', error.message);
+        }
+        alert("Updated List");
     };
-  
+
+    const handleDeleteList = async (listName) => {
+        try {
+            const response = await fetch(`http://localhost:8080/deletelist/${listName}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                console.log('List deleted successfully');
+                // Update the user lists after deletion
+                fetchUserLists();
+            } else {
+                console.error('Failed to delete list:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error deleting list:', error.message);
+        }
+    };
+
     const handleSelectList = (listId, name, description, heroes, privacy) => {
-      setSelectedListId(listId);
-      setChangedListName(name);
-      setChangedListDescription(description);
-      setChangedListHeroes(heroes.join(', ')); // Join the array to display as a comma-separated string
-      setChangedListPrivacy(privacy);
+        let privacyText = 'Public';
+        if (privacy == true) {
+            privacyText = 'Private';
+        }
+        setSelectedListId(listId);
+        setChangedListDescription(description);
+        setChangedListHeroes(heroes.join(', ')); // Join the array to display as a comma-separated string
+        setChangedListPrivacy(privacyText);
     };
-  
+
     return (
-      <ListsContainer>
-        <Header>Your Lists</Header>
-        <ScrollableContainer>
-        <ul>
-          {userLists.map((list) => (
-            <ListItem key={list._id}>
-              {list.name}
-              <EditButton onClick={() => handleSelectList(list._id, list.name, list.notes, list.superheroes, list.listPrivacy)}>Edit</EditButton>
-              <DeleteButton onClick={() => handleDeleteList(list._id)}>Delete</DeleteButton>
-              {selectedListId === list._id && (
-                <EditContainer>
-                  <label htmlFor="listName">Name:</label>
-                  <EditInput type="text" id="listName" value={changedListName} onChange={handleListNameChange} />
-  
-                  <label htmlFor="listDescription">Description:</label>
-                  <EditInput type="text" id="listDescription" value={changedListDescription} onChange={handleDescriptionChange} />
-  
-                  <label htmlFor="listHeroes">Heroes:</label>
-                  <EditInput type="text" id="listHeroes" value={changedListHeroes} onChange={handleHeroesChange} />
-  
-                  <label htmlFor="listPrivacy">Privacy:</label>
-                  <select id="listPrivacy" value={changedListPrivacy ? 'private' : 'public'} onChange={handlePrivacyChange}>
-                    <option value="public">Public</option>
-                    <option value="private">Private</option>
-                  </select>
-  
-                  <SaveChangesButton onClick={() => handleEditList(list._id)}>Save Changes</SaveChangesButton>
-                </EditContainer>
-              )}
-            </ListItem>
-          ))}
-        </ul>
-        </ScrollableContainer>
-      </ListsContainer>
+        <ListsContainer>
+            <ListSection>
+                <Header>Edit</Header>
+                <ScrollableContainer>
+                    <ul>
+                        {userLists.map((list) => (
+                            <ListItem key={list._id}>
+                                {list.name}
+                                <EditButton onClick={() => handleSelectList(list._id, list.name, list.notes, list.superheroes, list.listPrivacy)}>Edit / View Items</EditButton>
+                                <DeleteButton onClick={() => handleDeleteList(list.name)}>Delete</DeleteButton>
+                                {selectedListId === list._id && (
+                                    <EditContainer>
+                                        <label htmlFor="listDescription">Description:</label>
+                                        <EditInput type="text" id="listDescription" value={changedListDescription} onChange={handleDescriptionChange} />
+
+                                        <label htmlFor="listHeroes">Heroes:</label>
+                                        <EditInput type="text" id="listHeroes" value={changedListHeroes} onChange={handleHeroesChange} />
+
+                                        <label htmlFor="listPrivacy">Privacy:</label>
+                                        <select id="listPrivacy" value={changedListPrivacy ? 'private' : 'public'} onChange={handlePrivacyChange}>
+                                            <option value="public">Public</option>
+                                            <option value="private">Private</option>
+                                        </select>
+
+                                        <SaveChangesButton onClick={() => handleEditList(list.name)}>Save Changes</SaveChangesButton>
+                                    </EditContainer>
+                                )}
+                            </ListItem>
+                        ))}
+                    </ul>
+                </ScrollableContainer>
+            </ListSection>
+
+            <ListSection>
+                <UserListsViewingMode />
+            </ListSection>
+        </ListsContainer>
     );
-  };
-  
-  export default UserLists;
-  
+};
+
+export default UserLists;
