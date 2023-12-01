@@ -6,6 +6,7 @@ const ExpandableBoxContainer = styled.div`
   background-color: #36454F;
   padding: 10px;
   margin-bottom: 10px;
+  z-index:5;
 `;
 
 const ExpandableBoxHeader = styled.div`
@@ -23,6 +24,9 @@ const Paragraph = styled.p`
 `;
 
 const SuperheroExpandableBox = ({ superhero }) => {
+  if(!superhero){
+    return null;
+  }
   const toggleExpand = () => {
     const content = document.getElementById(`expandable-box-content-${superhero.id}`);
     content.style.display = content.style.display === 'none' ? 'block' : 'none';

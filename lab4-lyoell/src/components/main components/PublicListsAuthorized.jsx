@@ -81,10 +81,9 @@ const PublicListAuthorized = () => {
 
 
   useEffect(() => {
-    // Fetch data from MongoDB here
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/allpubliclists');
+        const response = await fetch(`http://localhost:8080/allpubliclists`);
         const data = await response.json();
         setLists(data);
       } catch (error) {

@@ -89,10 +89,12 @@ const PublicList = () => {
               <SuperheroExpandableBox key={index} superhero={superhero} />
             ))}
             <ReviewContainer>
-              <ReviewHeader>Reviews:</ReviewHeader>
+            <ReviewHeader>Reviews:</ReviewHeader>
               {list.reviews && list.reviews.length > 0 ? (
                 list.reviews.map((review, index) => (
-                  <ReviewItem key={index}>{review}</ReviewItem>
+                  <ReviewItem key={index}>
+                    Rating: Name:{review.name} - Rating:{review.rating} - Comment:{review.comment}
+                  </ReviewItem>
                 ))
               ) : (
                 <p>No reviews available.</p>

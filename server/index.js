@@ -82,8 +82,8 @@ app.get('/alllistnames', async (req, res) => {
   // Adding a list to MongoDB
   app.post('/listAddition', async (req, res) => {
     try {
-        let isPrivate = req.body['visibility'] === 'Private';
-
+        let isPrivate = req.body['visibility'] === 'private';
+        console.log(req.body['visibility'])
         let heroesArray = Array.isArray(req.body['heroes']) ? req.body['heroes'].join(',') : req.body['heroes'];
 
         heroesArray = heroesArray.trim();
@@ -132,14 +132,13 @@ app.delete('/deletelist/:name', async (req, res) => {
 app.post('/updateList/:listName', async (req, res) => {
     try {
         const listName = req.params.listName;
-        console.log(listName);
         const existingList = await List.findOne({ name: listName });
 
         if (!existingList) {
             return res.status(404).json({ error: 'List not found' });
         }
 
-        let isPrivate = req.body['visibility'] === 'Private';
+        let isPrivate = req.body['visibility'] === 'private';
         let heroesArray = Array.isArray(req.body['heroes']) ? req.body['heroes'].join(',') : req.body['heroes'];
 
         heroesArray = heroesArray.trim();
@@ -187,6 +186,7 @@ app.get('/allpubliclists', async (req, res) => {
     }
 });
 
+
 app.get('/userlistsHeroes/:email', async (req, res) =>{
     try {
     const publicLists = await List.find({ username: req.params.email });
@@ -215,7 +215,6 @@ app.get('/userlistsHeroes/:email', async (req, res) =>{
 
 })
 
-// Example route for fetching user-specific lists
 app.get('/userlistsEditable/:email', async (req, res) => {
     try {
       const userEmail = req.params.email;

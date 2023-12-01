@@ -1,13 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../../firebase';
+import SuperheroExpandableBox from './ExpandableBox';
 
 const Container = styled.div`
   font-family: 'Garamond, serif';
-  color: black;
+  color: white;
 `;
 
 const Header = styled.h2`
-  color: black;
+  color: white;
+`;
+
+const ScrollableContainer = styled.div`
+  width: 500px;
+  height: 15vh;
+  overflow: auto;
+  border: 1px solid #fff;
+  padding: 5px;
+  background: black;
+`;
+
+const ListContainer = styled.div`
+  margin-bottom: 20px;
+`;
+
+const ListName = styled.h2`
+  color: white;
+`;
+
+const ListDescription = styled.p`
+  color: white;
+`;
+
+const UserInfo = styled.p`
+  color: white;
+`;
+
+const ListPrivacy = styled.p`
+  color: white;
+`;
+
+const SuperheroesHeader = styled.h3`
+  color: white;
 `;
 
 const ReviewContainer = styled.div`
@@ -15,107 +51,84 @@ const ReviewContainer = styled.div`
 `;
 
 const ReviewHeader = styled.h3`
-  color: black;
+  color: white;
 `;
 
 const ReviewItem = styled.div`
-  color: black;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  color: white;
 `;
 
-const ReviewOptions = styled.div`
-  display: flex;
-  gap: 8px;
-`;
-
-const AdminReviews = () => {
-  const [reviews, setReviews] = useState([]);
+const UserLists = ({ userEmail }) => {
+  const [lists, setLists] = useState([]);
+  const [authUser, setAuthUser] = useState(null);
 
   useEffect(() => {
-    // Fetch data from the server
+    const listen = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setAuthUser(user);
+      } else {
+        setAuthUser(null);
+      }
+    });
+
+    return () => {
+      listen();
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/allreviews');
+        const response = await fetch(`http://localhost:8080/userlistsHeroes/${authUser.email}`);
         const data = await response.json();
-        setReviews(data);
+        setLists(data);
       } catch (error) {
-        console.error('Error fetching reviews:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchData(); // Initial fetch
 
-  const handleHideReview = async (reviewId) => {
-    try {
-      const response = await fetch(`http://localhost:8080/updatereview/${reviewId}`, {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      if (response.ok) {
-        console.log('Review visibility changed successfully');
-  
-        const updatedReviews = reviews.map(review =>
-          (review._id === reviewId ? { ...review, hidden: !review.hidden } : review)
-        );
-  
-        setReviews(updatedReviews);
-  
-        console.log('Review Visibility Changed!');
-      } else {
-        console.error('Failed to change review visibility:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error changing review visibility:', error.message);
-    }
-  };
-    
-  const handleDeleteReview = async (reviewId) => {
-    try {
-      const response = await fetch(`http://localhost:8080/deletereview/${reviewId}`, {
-        method: 'DELETE',
-      });
+    const intervalId = setInterval(() => {
+      fetchData(); // Fetch data every few seconds
+    }, 5000);
 
-      if (response.ok) {
-        console.log('Review deleted successfully');
-        // Update the reviews after deletion
-        const updatedReviews = reviews.filter(review => review._id !== reviewId);
-        setReviews(updatedReviews);
-      } else {
-        console.error('Failed to delete review:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error deleting review:', error.message);
-    }
-  };
+    return () => {
+      clearInterval(intervalId); // Cleanup the interval on component unmount
+    };
+  }, [authUser]);
 
   return (
     <Container>
-      <Header>All Reviews</Header>
-      <ReviewContainer>
-        {reviews.map((review) => (
-          <ReviewItem key={review._id}>
-            <div>
-              <strong>By:</strong> {review.name} | <strong>Rating:</strong> {review.rating} | <strong>Comment:</strong> {review.comment} <strong>Privacy:</strong> {review.hidden.toString()}
-            </div>
-            <ReviewOptions>
-              {!review.hidden && (
-                <>
-                  <button onClick={() => handleHideReview(review.id)}>Hide</button>
-                  <button onClick={() => handleDeleteReview(review.id)}>Delete</button>
-                </>
+      <Header>Your Lists</Header>
+      <ScrollableContainer>
+        {lists.map((list) => (
+          <ListContainer key={list._id}>
+            <ListName>List Name: {list.name}</ListName>
+            <ListDescription>Description: {list.notes}</ListDescription>
+            <UserInfo>Made By: {list.username}</UserInfo>
+            <ListPrivacy>List Privacy: {list.listPrivacy ? 'Private' : 'Public'}</ListPrivacy>
+            <SuperheroesHeader>Superheroes:</SuperheroesHeader>
+            {list.superheroes.map((superhero, index) => (
+              <SuperheroExpandableBox key={index} superhero={superhero} />
+            ))}
+            <ReviewContainer>
+              <ReviewHeader>Reviews:</ReviewHeader>
+              {list.reviews && list.reviews.length > 0 ? (
+                list.reviews.map((review, index) => (
+                  <ReviewItem key={index}>
+                    Rating: Name:{review.name} - Rating:{review.rating} - Comment:{review.comment}
+                  </ReviewItem>
+                ))
+              ) : (
+                <p>No reviews available.</p>
               )}
-            </ReviewOptions>
-          </ReviewItem>
+            </ReviewContainer>
+          </ListContainer>
         ))}
-      </ReviewContainer>
+      </ScrollableContainer>
     </Container>
   );
 };
-export default AdminReviews;
+
+export default UserLists;
