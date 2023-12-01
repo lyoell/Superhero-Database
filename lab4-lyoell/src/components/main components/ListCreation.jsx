@@ -111,7 +111,7 @@ const CreateList = () => {
         
             // Create the list object
             const newList = {
-                username: authUser.displayName,
+                username: authUser.email,
                 name: listName,
                 description: listDescription,
                 visibility: listVisibility,

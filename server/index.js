@@ -62,42 +62,82 @@ const databaseSchema = new mongoose.Schema({
   // Define the model
   const List = mongoose.model('lists', databaseSchema);
     
-  // POST endpoint for adding a list
+  // Adding a list to MongoDB
   app.post('/listAddition', async (req, res) => {
     try {
+        let isPrivate = req.body['visibility'] === 'Private';
 
-    let isPrivate = false;
-    if(req.body['visibility'] == 'Private'){
-        isPrivate = true;
-    }
-    let heroesArray = ""
-    heroesArray = req.body['heroes']
-    String.prototype.trim(heroesArray);
-    //Getting the superhero names in an array
-    const superheroNamesArray = String.prototype.split(',', heroesArray)
-    
-    let newList = new List({
-        'username': req.body['username'],
-            'name':req.body['name'],
-          'notes': req.body['description'],
-          'superheroes': superheroNamesArray,
-          'listPrivacy': isPrivate,
-          'reviews': [],
-    });
-  
-      // Save the new list to the database
-      const savedList = await newList.save();
+        // Check if req.body['heroes'] is an array
+        let heroesArray = Array.isArray(req.body['heroes']) ? req.body['heroes'].join(',') : req.body['heroes'];
+
+        // Trim leading and trailing whitespaces from the heroesArray
+        heroesArray = heroesArray.trim();
+
+        // Split the heroesArray into an array of superhero names
+        const superheroNamesArray = heroesArray.split(',');
+
+        let newList = new List({
+            'username': req.body['username'],
+            'name': req.body['name'],
+            'notes': req.body['description'],
+            'superheroes': superheroNamesArray,
+            'listPrivacy': isPrivate,
+            'reviews': [],
+        });
+
+        // Save the new list to the database
+        const savedList = await newList.save();
         console.log('Added List!')
-      res.status(201).json(savedList);
+        res.status(201).json(savedList);
     } catch (error) {
-      console.error(error);
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// getting all the public lists with superhero info.
+app.get('/allpubliclists', async (req, res) => {
+    try {
+        const publicLists = await List.find({ listPrivacy: false });
+
+        // Populate superhero information for each list
+        const listsWithSuperheroes = await Promise.all(publicLists.map(async (list) => {
+            const superheroDetails = await Promise.all(list.superheroes.map(async (superheroName) => {
+                const superhero = superhero_info.find(hero => hero.name.toLowerCase() === superheroName.toLowerCase());
+                const matchingPower = superhero_powers.find(e => e.hero_names === superheroName);
+                
+                if (superhero && matchingPower) {
+                    return { ...superhero, powers: matchingPower };
+                } else {
+                    return superhero;
+                }
+            }));
+
+            return { ...list.toObject(), superheroes: superheroDetails };
+        }));
+
+        res.json(listsWithSuperheroes);
+    } catch (error) {
+        console.error('Error fetching public lists with superhero info:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Example route for fetching user-specific lists
+app.get('/userlists/:email', async (req, res) => {
+    try {
+      const userEmail = req.params.email;
+      console.log(userEmail)
+  
+      const userLists = await List.find({ username: userEmail });
+  
+      res.json(userLists);
+    } catch (error) {
+      console.error('Error fetching user lists:', error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
   
-
-
-
 app.use((req, res, next) => {
     console.log(`${req.method} request for ${req.url}`);
     next();

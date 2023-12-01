@@ -5,6 +5,7 @@ import AuthDetails from '../auth/AuthDetails';
 import Search from '../main components/search.jsx'
 import VideoBackgroundWorld from '../media/VideoBackgroundNYC.jsx';
 import CreateList from '../main components/ListCreation.jsx';
+import UserLists from '../main components/UsersList.jsx';
 
 const Container = styled.div`
   position: relative;
@@ -36,6 +37,7 @@ export default function AuthorizedPage() {
       <Container>
         <Search/>
         <CreateList/>
+        <UserLists/>
       </Container>
     </div>
   )

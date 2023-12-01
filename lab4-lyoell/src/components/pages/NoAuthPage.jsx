@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import Search from '../main components/search.jsx'
 import VideoBackgroundSkyline from '../media/VideoBackGroundSkyline';
+import PublicList from '../main components/PublicLists.jsx';
 
 
 const SubmitButton = styled(Link)`
@@ -84,6 +85,7 @@ export default function NoAuthPage() {
          rate lists and save changes, sign up for an account! Stay for a while, and enjoy the website!</Paragraph>
         <SubmitButton to="/SignupPage">Sign Up for Account for Full Functionality</SubmitButton>
         <Search/>
+        <PublicList/>
     </Container>
   )
 }
