@@ -3,6 +3,7 @@ import SuperheroExpandableBox from './ExpandableBox';
 import styled from 'styled-components';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../firebase';
+import SuperheroExpandableResults from './ExpandableResults';
 
 
 const Container = styled.div`
@@ -136,7 +137,7 @@ const PublicListAuthorized = () => {
             <ListPrivacy>List Privacy: {list.listPrivacy ? 'Private' : 'Public'}</ListPrivacy>
             <SuperheroesHeader>Superheroes:</SuperheroesHeader>
             {list.superheroes.map((superhero, index) => (
-              <SuperheroExpandableBox key={index} superhero={superhero} />
+              <SuperheroExpandableResults key={index} superhero={superhero} />
             ))}
             <ReviewContainer>
             <ReviewHeader>Reviews:</ReviewHeader>

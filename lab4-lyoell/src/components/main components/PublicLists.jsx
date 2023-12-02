@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import SuperheroExpandableBox from './ExpandableBox';
 import styled from 'styled-components';
+import SuperheroExpandableResults from './ExpandableResults';
 
 const Container = styled.div`
   font-family: 'Garamond, serif';
@@ -89,7 +89,7 @@ const PublicList = () => {
             <ListPrivacy>List Privacy: {list.listPrivacy ? 'Private' : 'Public'}</ListPrivacy>
             <SuperheroesHeader>Superheroes:</SuperheroesHeader>
             {list.superheroes.map((superhero, index) => (
-              <SuperheroExpandableBox key={index} superhero={superhero} />
+              <SuperheroExpandableResults key={index} superhero={superhero} />
             ))}
             <ReviewContainer>
             <ReviewHeader>Reviews:</ReviewHeader>

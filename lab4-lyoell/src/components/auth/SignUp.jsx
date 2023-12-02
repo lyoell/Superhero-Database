@@ -1,5 +1,5 @@
-import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
-import React, { useState } from "react";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile, onAuthStateChanged } from "firebase/auth";
+import React, { useState, useEffect } from "react";
 import { auth } from "../../firebase";
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -73,38 +73,41 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const UseHistory = useHistory();
+  const history = useHistory();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && user.emailVerified) {
+        // Redirect when email is verified
+
+        history.push("/AuthorizedPage");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [history]);
 
   const signUp = async (e) => {
     e.preventDefault();
-  
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-  
+
       // Update the user profile with the provided username
       await updateProfile(user, {
         displayName: username,
       });
-      
+
       // Send email verification
       await sendEmailVerification(user);
-      alert('Email Verification was sent. Please respond to complete signup')
-  
-      // Check if the email is verified
-      if (user.emailVerified) {
-        // Redirect only after email verification is complete
-        UseHistory.push("/AuthorizedPage");
-        console.log('User has been redirected to /AuthorizedPage');
-      } else {
-        // Email not verified, you can notify the user or handle it as needed
-        console.log('Email verification is pending. User will not be redirected.');
-      }
+      alert('Email Verification was sent. Please respond to complete signup. Reload page once complete.');
+
     } catch (error) {
       console.error('Error during sign up:', error);
     }
   };
-  
+
   return (
     <Container>
       <VideoBackgroundWorld />

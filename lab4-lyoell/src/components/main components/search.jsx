@@ -11,14 +11,14 @@ const InputContainer = styled.div`
 
 const TextInput = styled.input`
   width: 20%;
-  padding: 10px;
+  padding: 5px;
   margin: 8px 0;
   box-sizing: border-box;
 `;
 
 const SearchButton = styled.button`
   width: 50%;
-  padding: 10px;
+  padding: 5px;
   background-color: #4caf50;
   color: white;
   border: none;
@@ -46,7 +46,7 @@ color: white;
 
 const ScrollableBox = styled.div`
   width: 500px;
-  height: 15vh;
+  height: 13vh;
   overflow: auto;
   border: 1px solid #fff;
   padding: 5px;

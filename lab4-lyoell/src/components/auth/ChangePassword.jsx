@@ -30,14 +30,12 @@ const ChangePassword = () => {
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          // Handle the error appropriately
         });
     }
   };
 
   return (
     <div>
-      <h2>Change Password</h2>
       {emailSent ? (
         <p>Password reset email sent to {authUser?.email}.</p>
       ) : (

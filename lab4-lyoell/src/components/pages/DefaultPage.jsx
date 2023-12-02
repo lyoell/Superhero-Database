@@ -58,14 +58,6 @@ const InfoButton = styled(Link)`
 `;
 
 const DefaultPage = () => {
-  const history = useHistory();
-
-  const auth = getAuth();
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      history.push('/AuthorizedPage');
-    }
-  });
 
   return (
     <Container>
