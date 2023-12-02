@@ -34,24 +34,22 @@ const ReviewOptions = styled.div`
 const AdminReviews = () => {
   const [reviews, setReviews] = useState([]);
 
-  useEffect(() => {
-    // Fetch data from the server
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://localhost:8080/allreviews');
-        const data = await response.json();
-        setReviews(data);
-      } catch (error) {
-        console.error('Error fetching reviews:', error);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/allreviews');
+      const data = await response.json();
+      setReviews(data);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
 
-const handleHideReview = async (reviewId) => {
-  try {
-    const response = await fetch(`http://localhost:8080/updatereview/${reviewId}`, {
+  const handleHideReview = async (reviewId, listID) => {
+    const response = await fetch(`http://localhost:8080/updatereview/${listID}/${reviewId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -59,37 +57,26 @@ const handleHideReview = async (reviewId) => {
     });
 
     if (response.ok) {
-      console.log('Review visibility changed successfully');
-      // Update the reviews after changing visibility
-      const updatedReviews = reviews.map(review =>
-        (review._id === reviewId ? { ...review, hidden: !review.hidden } : review)
-      );
-      setReviews(updatedReviews);
-      console.log('Review Visibility Changed!');
+      fetchData();
+      alert("Hidden/Unhidden!");
     } else {
-      console.error('Failed to change review visibility:', response.statusText);
+      alert("Failed to hide/unhide review");
     }
-  } catch (error) {
-    console.error('Error changing review visibility:', error.message);
-  }
-};
+  };
 
-  const handleDeleteReview = async (reviewId) => {
-    try {
-      const response = await fetch(`http://localhost:8080/deletereview/${reviewId}`, {
-        method: 'DELETE',
-      });
+  const handleDeleteReview = async (reviewId, listID) => {
+    const response = await fetch(`http://localhost:8080/deletereview/${listID}/${reviewId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-      if (response.ok) {
-        console.log('Review deleted successfully');
-        // Update the reviews after deletion
-        const updatedReviews = reviews.filter(review => review._id !== reviewId);
-        setReviews(updatedReviews);
-      } else {
-        console.error('Failed to delete review:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error deleting review:', error.message);
+    if (response.ok) {
+      fetchData();
+      alert("Deleted!");
+    } else {
+      alert("Failed to hide/unhide review");
     }
   };
 
@@ -98,15 +85,19 @@ const handleHideReview = async (reviewId) => {
       <Header>All Reviews</Header>
       <ReviewContainer>
         {reviews.map((review) => (
-          <ReviewItem key={review._id}>
+          <ReviewItem key={review.id}>
             <div>
-              <strong>By:</strong> {review.name} | <strong>Rating:</strong> {review.rating} | <strong>Comment:</strong> {review.comment} <strong>Visibility:</strong> {review.hidden}
+              <strong>By:</strong> {review.name} | 
+              <strong>Rating:</strong> {review.rating} | 
+              <strong>Comment:</strong> {review.comment} | 
+              <strong>Is Hidden:</strong> {review.hidden.toString()} | 
+              <strong>List ID:</strong> {review.listID}
             </div>
             <ReviewOptions>
-              {!review.hidden && (
+              {(
                 <>
-                  <button onClick={() => handleHideReview(review.id)}>Hide</button>
-                  <button onClick={() => handleDeleteReview(review.id)}>Delete</button>
+                  <button onClick={() => handleHideReview(review.id, review.listID)}>Hide/Unhide</button>
+                  <button onClick={() => handleDeleteReview(review.id, review.listID)}>Delete</button>
                 </>
               )}
             </ReviewOptions>

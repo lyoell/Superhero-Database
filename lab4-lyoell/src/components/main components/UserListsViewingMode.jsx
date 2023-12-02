@@ -79,7 +79,7 @@ const UserLists = ({ userEmail }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/userlistsHeroes/${authUser.email}`);
+        const response = await fetch(`http://localhost:8080/userlistsHeroes/${authUser.displayName}`);
         const data = await response.json();
         setLists(data);
       } catch (error) {
@@ -113,13 +113,15 @@ const UserLists = ({ userEmail }) => {
               <SuperheroExpandableBox key={index} superhero={superhero} />
             ))}
             <ReviewContainer>
-              <ReviewHeader>Reviews:</ReviewHeader>
+            <ReviewHeader>Reviews:</ReviewHeader>
               {list.reviews && list.reviews.length > 0 ? (
-                list.reviews.map((review, index) => (
-                  <ReviewItem key={index}>
-                    Rating: Name:{review.name} - Rating:{review.rating} - Comment:{review.comment}
-                  </ReviewItem>
-                ))
+                list.reviews
+                  .filter((review) => !review.hidden) // Filter out reviews with hidden set to true
+                  .map((review, index) => (
+                    <ReviewItem key={index}>
+                      Rating: Name:{review.name} - Rating:{review.rating} - Comment:{review.comment}
+                    </ReviewItem>
+                  ))
               ) : (
                 <p>No reviews available.</p>
               )}

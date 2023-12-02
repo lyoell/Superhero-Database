@@ -57,6 +57,10 @@ const databaseSchema = new mongoose.Schema({
       type: Array,
       required: false,
     },
+    'lastEdited':{
+        type:Date,
+        required:true
+    }
   });
   
   // Define the model
@@ -96,6 +100,7 @@ app.get('/alllistnames', async (req, res) => {
             'superheroes': superheroNamesArray,
             'listPrivacy': isPrivate,
             'reviews': [],
+            'lastEdited':new Date()
         });
 
         // Save the new list to the database
@@ -147,6 +152,7 @@ app.post('/updateList/:listName', async (req, res) => {
         existingList.notes = req.body.description || existingList.notes;
         existingList.superheroes = superheroNamesArray || existingList.superheroes;
         existingList.listPrivacy = isPrivate || existingList.listPrivacy;
+        existingList.lastEdited = new Date();
         console.log(req.body.description);
         console.log(isPrivate)
         const updatedList = await existingList.save();
@@ -185,7 +191,6 @@ app.get('/allpubliclists', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
 
 app.get('/userlistsHeroes/:email', async (req, res) =>{
     try {
@@ -273,8 +278,8 @@ app.get('/userlistsEditable/:email', async (req, res) => {
       lists.forEach((list) => {
         if (list.reviews && list.reviews.length > 0) {
           const reviewsWithListID = list.reviews.map((review) => ({
-            ...review.toObject(), // Convert Mongoose document to plain JavaScript object
-            listID: list._id.toString(), // Add the listID to each review
+            ...review, 
+            listID: list._id.toString(),
           }));
           allReviews = allReviews.concat(reviewsWithListID);
         }
@@ -288,40 +293,77 @@ app.get('/userlistsEditable/:email', async (req, res) => {
   });
     
   // Hiding a review
-  app.post('/updatereview/:reviewId', async (req, res) => {
+  app.post('/updatereview/:listId/:reviewId', async (req, res) => {
+    try {
+        const reviewId = req.params.reviewId;
+        const listId = req.params.listId;
+    
+        // Find the list by ID
+        const listToUpdate = await List.findById(listId);
+    
+        if (!listToUpdate) {
+          return res.status(404).json({ error: 'List not found' });
+        }
+    
+        // Find the index of the review within the list
+        const reviewIndex = listToUpdate.reviews.findIndex(
+          (review) => review.id == reviewId
+        );
+    
+        if (reviewIndex === -1) {
+          return res.status(404).json({ error: 'Review not found' });
+        }
+        let tempHold = listToUpdate.reviews[reviewIndex]
+        tempHold.hidden = !tempHold.hidden;
+    
+        // Remove the review from the array
+        listToUpdate.reviews.splice(reviewIndex, 1);
+        listToUpdate.reviews.push(tempHold);
+        // Save the updated list
+        const updatedList = await listToUpdate.save();
+    
+        res.json(updatedList);
+      } catch (error) {
+        console.error('Error deleting review:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    });
+
+  app.post('/deletereview/:listId/:reviewId', async (req, res) => {
     try {
       const reviewId = req.params.reviewId;
+      const listId = req.params.listId;
   
-      // Find the review by ID
-      const reviewToUpdate = await List.findOne({ 'reviews.id': reviewId });
+      // Find the list by ID
+      const listToUpdate = await List.findById(listId);
   
-      
-      if (!reviewToUpdate) {
+      if (!listToUpdate) {
+        return res.status(404).json({ error: 'List not found' });
+      }
+  
+      // Find the index of the review within the list
+      const reviewIndex = listToUpdate.reviews.findIndex(
+        (review) => review.id == reviewId
+      );
+  
+      if (reviewIndex === -1) {
         return res.status(404).json({ error: 'Review not found' });
       }
   
-      // Update the hidden status of the review
-      reviewToUpdate.reviews.forEach((review) => {
-        if (review.id.toString() === reviewId) {
-          if(review.hidden == true) {
-            review.hidden = false;
-          }
-          if(review.hidden == false){
-            review.hidden = true;
-          }
-        }
-      });
+      // Remove the review from the array
+      listToUpdate.reviews.splice(reviewIndex, 1);
   
       // Save the updated list
-      const updatedList = await reviewToUpdate.save();
+      const updatedList = await listToUpdate.save();
   
       res.json(updatedList);
     } catch (error) {
-      console.error('Error updating review:', error);
+      console.error('Error deleting review:', error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
   
+      
 
 
 app.use((req, res, next) => {

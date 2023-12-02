@@ -111,6 +111,24 @@ const InputStorage = () => {
         <Container>
           <AdminReviews/>
         </Container>
+        <Container>
+       <h3>
+        Workflow / Usage of Tools: 
+        </h3>
+        <p>
+          To change the AUP, DCMA and Privacy columns simply enter the new changes
+          and submit
+        </p>
+        <p>
+          To change the complaint details info, change the field of a complaint and then click update details. 
+        </p>
+        <p>
+        To disable / enable a user, enter their emails into the corresponding box and click the button.
+        </p>
+        <p>
+          To hide / delete a review, click the respective button
+        </p>
+        </Container>
     </div>
   );
 };

@@ -120,7 +120,7 @@ const CreateList = () => {
     
         // Create the list object
         const newList = {
-            username: authUser.email,
+            username: authUser.displayName,
             name: listName,
             description: listDescription,
             visibility: listVisibility,

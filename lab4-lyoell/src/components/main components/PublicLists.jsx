@@ -73,12 +73,15 @@ const PublicList = () => {
 
     fetchData();
   }, []); 
+  //Making sure only 10 are shown.
+  const sortedLists = [...lists].sort((a, b) => b.lastEdited - a.lastEdited);
+  const displayedLists = sortedLists.slice(0, 10);
 
   return (
     <Container>
       <Header>All Lists</Header>
       <ScrollableContainer>
-        {lists.map((list) => (
+        {displayedLists.map((list) => (
           <ListContainer key={list._id}>
             <ListName>List Name: {list.name}</ListName>
             <ListDescription>Description: {list.notes}</ListDescription>
@@ -91,11 +94,13 @@ const PublicList = () => {
             <ReviewContainer>
             <ReviewHeader>Reviews:</ReviewHeader>
               {list.reviews && list.reviews.length > 0 ? (
-                list.reviews.map((review, index) => (
-                  <ReviewItem key={index}>
-                    Rating: Name:{review.name} - Rating:{review.rating} - Comment:{review.comment}
-                  </ReviewItem>
-                ))
+                list.reviews
+                  .filter((review) => !review.hidden) // Filter out reviews with hidden set to true
+                  .map((review, index) => (
+                    <ReviewItem key={index}>
+                      Rating: Name:{review.name} - Rating:{review.rating} - Comment:{review.comment}
+                    </ReviewItem>
+                  ))
               ) : (
                 <p>No reviews available.</p>
               )}

@@ -100,7 +100,7 @@ const UserLists = ({ authenticatedUserEmail }) => {
     const fetchUserLists = async () => {
         try {
             if (authUser) {
-                const response = await fetch(`http://localhost:8080/userlistsEditable/${authUser.email}`);
+                const response = await fetch(`http://localhost:8080/userlistsEditable/${authUser.displayName}`);
                 const data = await response.json();
                 setUserLists(data);
             }
@@ -119,7 +119,7 @@ const UserLists = ({ authenticatedUserEmail }) => {
 
             return () => clearInterval(intervalId);
         }
-    }, [authUser, authUser?.email]);
+    }, [authUser, authUser?.displayName]);
 
     const handleDescriptionChange = (event) => {
         setChangedListDescription(event.target.value);
