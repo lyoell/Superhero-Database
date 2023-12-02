@@ -91,6 +91,9 @@ const SignIn = () => {
       if(error.code === AuthErrorCodes.UNVERIFIED_EMAIL){
         alert('Please verify your email.')
       }
+      if(error.code == AuthErrorCodes.INVALID_PASSWORD){
+        alert('Invalid Password')
+      }
     }
   };
 

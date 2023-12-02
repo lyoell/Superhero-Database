@@ -79,7 +79,7 @@ const UserLists = ({ authenticatedUserEmail }) => {
     const [userLists, setUserLists] = useState([]);
     const [changedListDescription, setChangedListDescription] = useState('');
     const [changedListHeroes, setChangedListHeroes] = useState('');
-    const [changedListPrivacy, setChangedListPrivacy] = useState(false); // Default to false (public)
+    const [changedListPrivacy, setChangedListPrivacy] = useState('');
     const [selectedListId, setSelectedListId] = useState(null);
     const [authUser, setAuthUser] = useState(null);
 
@@ -128,7 +128,7 @@ const UserLists = ({ authenticatedUserEmail }) => {
         setChangedListHeroes(event.target.value);
     };
     const handlePrivacyChange = (event) => {
-        setChangedListPrivacy(event.target.value === 'private');
+        setChangedListPrivacy('public');
     };
 
     const handleEditList = (listName) => {
@@ -141,7 +141,7 @@ const UserLists = ({ authenticatedUserEmail }) => {
                 body: JSON.stringify({
                     description: changedListDescription,
                     heroes: changedListHeroes.split(',').map(hero => hero.trim()),
-                    visibility: changedListPrivacy,
+                    visibility: changedListPrivacy.toString(),
                 }),
             });
 
@@ -176,17 +176,14 @@ const UserLists = ({ authenticatedUserEmail }) => {
         }
     };
 
-    const handleSelectList = (listId, name, description, heroes, privacy) => {
-        let privacyText = 'Public';
-        if (privacy == true) {
-            privacyText = 'Private';
-        }
+    const handleSelectList = (listId, description, heroes, privacy) => {
+        let privacyText = (privacy === true ? 'private' : 'public');
         setSelectedListId(listId);
         setChangedListDescription(description);
-        setChangedListHeroes(heroes.join(', ')); // Join the array to display as a comma-separated string
+        setChangedListHeroes(heroes.join(', '));
         setChangedListPrivacy(privacyText);
     };
-
+        
     return (
         <ListsContainer>
             <ListSection>
@@ -196,7 +193,7 @@ const UserLists = ({ authenticatedUserEmail }) => {
                         {userLists.map((list) => (
                             <ListItem key={list._id}>
                                 {list.name}
-                                <EditButton onClick={() => handleSelectList(list._id, list.name, list.notes, list.superheroes, list.listPrivacy)}>Edit / View Items</EditButton>
+                                <EditButton onClick={() => handleSelectList(list._id, list.notes, list.superheroes, list.listPrivacy)}>Edit / View Items</EditButton>
                                 <DeleteButton onClick={() => handleDeleteList(list.name)}>Delete</DeleteButton>
                                 {selectedListId === list._id && (
                                     <EditContainer>

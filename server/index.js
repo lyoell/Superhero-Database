@@ -463,19 +463,17 @@ function isMatch(value, searchTerm) {
     const lowerCaseValue = value.toLowerCase();
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
 
-    // Check if the lowercased value and search term have the correct order with up to one character difference
     for (let i = 0; i <= lowerCaseValue.length - lowerCaseSearchTerm.length; i++) {
         const substring = lowerCaseValue.substr(i, lowerCaseSearchTerm.length);
         const distance = [...substring].filter((char, index) => char !== lowerCaseSearchTerm[index]).length;
 
-        if (distance <= 1) {
+        if (distance <= 2) {
             return true;
         }
     }
 
     return false;
 }
-
 app.get('/dcmacomplaintall', (req,res) =>
 {
     res.json(complaints);

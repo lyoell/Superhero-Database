@@ -4,6 +4,7 @@ import { auth } from "../../firebase";
 import styled from 'styled-components';
 import { useHistory } from "react-router-dom";
 import { Link } from 'react-router-dom';
+import ChangePassword from "./ChangePassword";
 
 const AuthDetails = () => {
   const history = useHistory();
@@ -86,6 +87,7 @@ const AuthDetails = () => {
           <AdminButton to="/AdminPage">
             Go to Admin Page
           </AdminButton>
+          <ChangePassword/>
         </>
       ) : (
         <p>Signed Out</p>
