@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router,Routes,  Route, Switch } from 'react-router-dom';
 import SignIn from './components/auth/SignIn';
 import SignUp from './components/auth/SignUp';
 import AuthDetails from './components/auth/AuthDetails';
@@ -12,27 +12,22 @@ import Admin from './components/pages/Admin';
   const App = () => {
   return (
     <Router>
-        <Route path = "/DefaultPage">
-        <DefaultPage/>
+      <Routes>
+        <Route path = "/DefaultPage" element={<DefaultPage/>}>
         </Route>
-        <Route path="/NoAuthorization">
-          <NoAuthPage/>
+        <Route path="/NoAuthorization" element={<NoAuthPage/>}>
         </Route> 
-        <Route path="/LoginPage">
-          <SignIn />
+        <Route path="/LoginPage" element={<SignIn />}>
         </Route>
-        <Route path="/SignupPage">
-        <SignUp />
+        <Route path="/SignupPage" element={<SignUp />}>
         </Route>
-        <Route path='/AuthorizedPage'>
-          <AuthorizedPage/>
+        <Route path='/AuthorizedPage' element={<AuthorizedPage/>}>
         </Route>
-        <Route path='/InfoPage'>
-          <InfoPage/>
+        <Route path='/InfoPage' element={<InfoPage/>}>
         </Route>
-        <Route path='/AdminPage'>
-          <Admin/>
+        <Route path='/AdminPage' element={<Admin/>}>
         </Route>
+        </Routes>
     </Router>
   );
 };

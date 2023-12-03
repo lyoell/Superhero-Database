@@ -497,8 +497,8 @@ app.post('/dcmacomplaint', (req,res) =>{
     "notes": notes,
     "status":status
     }
-
     complaints.push(complaint);
+    console.log('added')
     fs.writeFile("complaints.json", JSON.stringify(complaints), 'utf8', (err) => {
         if (err) {
             res.status(500).send("Error writing data.");

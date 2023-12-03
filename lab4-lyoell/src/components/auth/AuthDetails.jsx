@@ -2,12 +2,12 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
 import styled from 'styled-components';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import ChangePassword from "./ChangePassword";
 
 const AuthDetails = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [admins, setAdmins] = useState(null);
   const [authUser, setAuthUser] = useState(null);
 
@@ -42,7 +42,7 @@ const AuthDetails = () => {
     signOut(auth)
       .then(() => {
         console.log("sign out successful");
-        history.push("/DefaultPage");
+        navigate("/DefaultPage");
       })
       .catch((error) => console.log(error));
   };

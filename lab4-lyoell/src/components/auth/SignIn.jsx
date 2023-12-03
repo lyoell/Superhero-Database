@@ -4,7 +4,7 @@ import { auth } from "../../firebase";
 import styled from 'styled-components';
 import VideoBackgroundWorld from "../media/VideoBackgroundWorld";
 import { Link } from 'react-router-dom';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 const SignInContainer = styled.div`
@@ -73,7 +73,7 @@ const BackButton = styled(Link)`
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const signIn = async (e) => {
     e.preventDefault();
@@ -81,7 +81,7 @@ const SignIn = () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log(userCredential);
-      history.push("/AuthorizedPage");
+      navigate("/AuthorizedPage");
     } catch (error) {
       console.log(error);
 

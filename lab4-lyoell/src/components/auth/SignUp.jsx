@@ -4,7 +4,7 @@ import { auth } from "../../firebase";
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import VideoBackgroundWorld from "../media/VideoBackgroundWorld";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const SignUpContainer = styled.div`
   display: flex;
@@ -73,19 +73,18 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user && user.emailVerified) {
         // Redirect when email is verified
-
-        history.push("/AuthorizedPage");
+        navigate("/DefaultPage");
       }
     });
 
     return () => unsubscribe();
-  }, [history]);
+  }, [navigate]);
 
   const signUp = async (e) => {
     e.preventDefault();
