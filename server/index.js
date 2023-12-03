@@ -5,6 +5,8 @@ const port = 8080;
 const fs = require('fs');
 const admin = require('firebase-admin');
 const serviceAccount = require('./json/lab4-17758-firebase-adminsdk-63vkn-b86563f5cc.json');
+const jwt = require('jsonwebtoken');
+
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
@@ -19,6 +21,18 @@ admin.initializeApp({
     databaseURL: 'https://lab4-17758-default-rtdb.firebaseio.com/',
   });
 
+  app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    const user = users.find((u) => u.username === username && u.password === password);
+  
+    if (user) {
+      const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+      res.json({ token });
+    } else {
+      res.status(401).json({ message: 'Invalid credentials' });
+    }
+  });
+  
 app.use(cors());
 app.use(express.json());
 
