@@ -21,10 +21,9 @@ const ChangePassword = () => {
   }, []);
 
   const handleChangePassword = () => {
-    if (authUser) {
+    if (authUser && authUser.email !== 'liamjohnxuyoell@gmail.com') {
       sendPasswordResetEmail(auth, authUser.email)
         .then(() => {
-          // Password reset email sent!
           setEmailSent(true);
         })
         .catch((error) => {
@@ -36,13 +35,12 @@ const ChangePassword = () => {
 
   return (
     <div>
-      {emailSent ? (
-        <p>Password reset email sent to {authUser?.email}.</p>
-      ) : (
+      {authUser?.email !== 'liamjohnxuyoell@gmail.com' && !emailSent && (
         <button type="button" onClick={handleChangePassword}>
           Change Password
         </button>
       )}
+      {emailSent && <p>Password reset email sent to {authUser?.email}.</p>}
     </div>
   );
 };
