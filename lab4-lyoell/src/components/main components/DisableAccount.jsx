@@ -5,7 +5,7 @@ const DisableAccountForm = () => {
 
   const handleDisableAccount = async () => {
     try {
-      const response = await fetch('http://localhost:8080/deactivateUser', {
+      const response = await fetch(`http://${window.location.hostname}:8080/deactivateUser`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

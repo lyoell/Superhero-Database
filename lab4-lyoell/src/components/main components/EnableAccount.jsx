@@ -5,7 +5,7 @@ const EnableAccountForm = () => {
 
   const handleEnableAccount = async () => {
     try {
-      const response = await fetch('http://localhost:8080/reactivateUser', {
+      const response = await fetch(`http://${window.location.hostname}:8080/reactivateUser`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

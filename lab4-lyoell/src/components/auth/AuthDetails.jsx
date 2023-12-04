@@ -14,7 +14,7 @@ const AuthDetails = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/admin');
+        const response = await fetch(`http://${window.location.hostname}:8080/admin`);
         const jsonData = await response.json();
         setAdmins(jsonData);
       } catch (error) {

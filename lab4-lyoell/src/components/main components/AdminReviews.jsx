@@ -36,7 +36,7 @@ const AdminReviews = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:8080/allreviews');
+      const response = await fetch(`http://${window.location.hostname}:8080/allreviews`);
       const data = await response.json();
       setReviews(data);
     } catch (error) {
@@ -49,7 +49,7 @@ const AdminReviews = () => {
   }, []);
 
   const handleHideReview = async (reviewId, listID) => {
-    const response = await fetch(`http://localhost:8080/updatereview/${listID}/${reviewId}`, {
+    const response = await fetch(`http://${window.location.hostname}:8080/updatereview/${listID}/${reviewId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -65,7 +65,7 @@ const AdminReviews = () => {
   };
 
   const handleDeleteReview = async (reviewId, listID) => {
-    const response = await fetch(`http://localhost:8080/deletereview/${listID}/${reviewId}`, {
+    const response = await fetch(`http://${window.location.hostname}:8080/deletereview/${listID}/${reviewId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

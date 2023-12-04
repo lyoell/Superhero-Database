@@ -35,7 +35,7 @@ const ComplaintDetails = ({ complaint }) => {
 
   const handleUpdate = async () => {
     try {
-      const response = await fetch('http://localhost:8080/dcmacomplaintadmin', {
+      const response = await fetch(`http://${window.location.hostname}:8080/dcmacomplaintadmin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,7 +98,7 @@ const ComplaintList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/dcmacomplaintall');
+        const response = await fetch(`http://${window.location.hostname}:8080/dcmacomplaintall`);
         const complaintsData = await response.json();
         setComplaints(complaintsData);
       } catch (error) {
