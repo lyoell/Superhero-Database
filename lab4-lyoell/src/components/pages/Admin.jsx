@@ -52,7 +52,7 @@ const InputStorage = () => {
         "dcma": DCMA
     }
     try {  
-        let response = await fetch('http://localhost:8080/policyrewrite', {
+        let response = await fetch(`http://${window.location.hostname}:8080/policyrewrite`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

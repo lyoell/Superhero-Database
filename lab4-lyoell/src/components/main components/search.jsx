@@ -67,7 +67,7 @@ const Search = () => {
     try {
       setSuperheroes([]);
 
-      const response = await fetch('http://localhost:8080/superheroinfo', {
+      const response = await fetch(`http://${window.location.hostname}:8080/superheroinfo`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -60,7 +60,7 @@ export default function InfoPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch('http://localhost:8080/policy');
+      const response = await fetch(`http://${window.location.hostname}:8080/policy`);
       const jsonData = await response.json();
       setData(jsonData);
     };
@@ -77,7 +77,7 @@ export default function InfoPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const allPrevious = await fetch('http://localhost:8080/dcmacomplaintall');
+      const allPrevious = await fetch(`http://${window.location.hostname}:8080/dcmacomplaint`);
       let numberComplaints = await allPrevious.json();
   
       let newValues = {
@@ -86,7 +86,7 @@ export default function InfoPage() {
         "note": complaint
       };
   
-      const response = await fetch('http://localhost:8080/dcmacomplaint', {
+      const response = await fetch(`http://${window.location.hostname}:8080/dcmacomplaint`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

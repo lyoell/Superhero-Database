@@ -101,7 +101,7 @@ const CreateList = () => {
         }
     
         // Fetch the list names
-        const response = await fetch(`http://localhost:8080/alllistnames`);
+        const response = await fetch(`http://${window.location.hostname}:8080/alllistnames`);
         const data = await response.json();
     
         if (data.includes(listName)) {
@@ -129,7 +129,7 @@ const CreateList = () => {
     
         if (listName && heroNames) {
             // Send a POST request to add the new list
-            const postResponse = await fetch('http://localhost:8080/listAddition', {
+            const postResponse = await fetch(`http://${window.location.hostname}:8080/listAddition`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

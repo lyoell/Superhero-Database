@@ -79,7 +79,7 @@ const UserLists = ({ userEmail }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/userlistsHeroes/${authUser.displayName}`);
+        const response = await fetch(`http://${window.location.hostname}:8080/userlistsHeroes/${authUser.displayName}`);
         const data = await response.json();
         setLists(data);
       } catch (error) {

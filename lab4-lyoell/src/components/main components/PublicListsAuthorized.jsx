@@ -84,7 +84,7 @@ const PublicListAuthorized = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/allpubliclists`);
+        const response = await fetch(`http://${window.location.hostname}:8080/allpubliclists`);
         const data = await response.json();
         setLists(data);
       } catch (error) {
@@ -97,7 +97,7 @@ const PublicListAuthorized = () => {
 
   const handleReviewSubmit = async (listId) => {
     try {
-      const response = await fetch(`http://localhost:8080/addreview/${listId}`, {
+      const response = await fetch(`http://${window.location.hostname}:8080/addreview/${listId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

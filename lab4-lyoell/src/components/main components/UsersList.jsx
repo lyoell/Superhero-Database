@@ -100,7 +100,7 @@ const UserLists = ({ authenticatedUserEmail }) => {
     const fetchUserLists = async () => {
         try {
             if (authUser) {
-                const response = await fetch(`http://localhost:8080/userlistsEditable/${authUser.displayName}`);
+                const response = await fetch(`http://${window.location.hostname}:8080/userlistsEditable/${authUser.displayName}`);
                 const data = await response.json();
                 setUserLists(data);
             }
@@ -133,7 +133,7 @@ const UserLists = ({ authenticatedUserEmail }) => {
 
     const handleEditList = (listName) => {
         try {
-            const response = fetch(`http://localhost:8080/updateList/${listName}`, {
+            const response = fetch(`http://${window.location.hostname}:8080/updateList/${listName}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -160,7 +160,7 @@ const UserLists = ({ authenticatedUserEmail }) => {
 
     const handleDeleteList = async (listName) => {
         try {
-            const response = await fetch(`http://localhost:8080/deletelist/${listName}`, {
+            const response = await fetch(`http://${window.location.hostname}:8080/deletelist/${listName}`, {
                 method: 'DELETE',
             });
 
